@@ -990,19 +990,19 @@ const sections = [
         maxLabel: "Do",
       },
       {
-        id: "purchaseBudget",
-        label: "10.2. Ile maksymalnie chcesz przeznaczyć na sam zakup nieruchomości?",
-        type: "number",
-        min: 0,
-        step: 10000,
-      },
-      {
         id: "renovationBudget",
-        label: "10.3. Ile maksymalnie chcesz przeznaczyć na remont lub wykończenie?",
+        label: "10.2. Ile na remont lub wykończenie jesteś w stanie przeznaczyć?",
         type: "number",
         min: 0,
         step: 10000,
         visible: (state) => showRenovationBudget(state),
+      },
+      {
+        id: "purchaseBudget",
+        label: "10.3. Ile maksymalnie chcesz przeznaczyć na sam zakup nieruchomości?",
+        type: "number",
+        min: 0,
+        step: 10000,
       },
       {
         id: "renovationFlex",
@@ -1586,12 +1586,24 @@ function renderBudgetRangeField(field) {
   const valuesRow = document.createElement("div");
   valuesRow.className = "budget-values-row";
 
-  const syncBudgetState = (nextMin, nextMax) => {
+  let minValueInput;
+  let maxValueInput;
+
+  const applyBudgetState = (nextMin, nextMax, rerender = false) => {
     const boundedMin = Math.max(field.min ?? 0, Math.min(nextMin, nextMax));
     const boundedMax = Math.min(field.max ?? 1000000, Math.max(nextMin, nextMax));
     state[field.id] = { min: boundedMin, max: boundedMax };
+    if (minValueInput) {
+      minValueInput.value = String(boundedMin);
+    }
+    if (maxValueInput) {
+      maxValueInput.value = String(boundedMax);
+    }
+    updateTrack();
     persistState();
-    renderStep();
+    if (rerender) {
+      renderStep();
+    }
   };
 
   const buildBudgetInput = (key, label) => {
@@ -1613,8 +1625,14 @@ function renderBudgetRangeField(field) {
       next[key] = input.value === "" ? "" : Number(input.value);
       const safeMin = Number(next.min || field.min || 0);
       const safeMax = Number(next.max || field.max || 1000000);
-      syncBudgetState(safeMin, safeMax);
+      applyBudgetState(safeMin, safeMax);
     });
+
+    if (key === "min") {
+      minValueInput = input;
+    } else {
+      maxValueInput = input;
+    }
 
     box.append(caption, input);
     return box;
@@ -1681,9 +1699,9 @@ function renderBudgetRangeField(field) {
       Math.abs(nextValue - currentRange.min) <= Math.abs(nextValue - currentRange.max);
 
     if (moveMin) {
-      syncBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
+      applyBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
     } else {
-      syncBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
+      applyBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
     }
   };
 
@@ -1697,9 +1715,9 @@ function renderBudgetRangeField(field) {
         const currentRange = getCurrentRange();
 
         if (edge === "min") {
-          syncBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
+          applyBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
         } else {
-          syncBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
+          applyBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
         }
       };
 
