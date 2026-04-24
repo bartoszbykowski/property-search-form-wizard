@@ -177,12 +177,11 @@ body {
   position: relative;
   width: 100%;
   max-width: 640px;
-  height: 36px;
+  height: 40px;
   margin-bottom: var(--space-3);
 }
 
-.budget-slider-group::before {
-  content: "";
+.budget-slider-base {
   position: absolute;
   left: 0;
   right: 0;
@@ -190,6 +189,7 @@ body {
   height: 4px;
   transform: translateY(-50%);
   background: var(--border);
+  border-radius: 999px;
 }
 
 .budget-slider-active {
@@ -199,32 +199,37 @@ body {
   transform: translateY(-50%);
   background: var(--link);
   pointer-events: none;
+  border-radius: 999px;
 }
 
-.budget-range {
+.budget-handle {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  background: transparent !important;
-  -webkit-appearance: none;
-  appearance: none;
-  pointer-events: none;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--button-bg);
+  border: 2px solid var(--button-border);
+  box-shadow: 0 0 0 2px var(--panel);
+  cursor: grab;
+  padding: 0;
 }
 
-.budget-range::-webkit-slider-runnable-track {
-  height: 4px;
-  background: transparent;
+.budget-handle:active {
+  cursor: grabbing;
 }
 
-.budget-range::-moz-range-track {
-  height: 4px;
-  background: transparent;
+.budget-handle:hover {
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
-.budget-range::-webkit-slider-thumb {
+.budget-handle:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+.count-slider-input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
@@ -235,10 +240,9 @@ body {
   box-shadow: 0 0 0 2px var(--panel);
   margin-top: -7px;
   cursor: pointer;
-  pointer-events: auto;
 }
 
-.budget-range::-moz-range-thumb {
+.count-slider-input::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -246,7 +250,6 @@ body {
   border: 2px solid var(--button-border);
   box-shadow: 0 0 0 2px var(--panel);
   cursor: pointer;
-  pointer-events: auto;
 }
 
 .choice-card,

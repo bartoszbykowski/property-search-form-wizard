@@ -1628,75 +1628,104 @@ function renderBudgetRangeField(field) {
   const sliderGroup = document.createElement("div");
   sliderGroup.className = "budget-slider-group";
 
+  const baseTrack = document.createElement("div");
+  baseTrack.className = "budget-slider-base";
+
   const activeTrack = document.createElement("div");
   activeTrack.className = "budget-slider-active";
 
-  const minRange = document.createElement("input");
-  minRange.type = "range";
-  minRange.className = "budget-range budget-range-min";
-  minRange.min = field.min ?? 0;
-  minRange.max = field.max ?? 1000000;
-  minRange.step = field.step ?? 10000;
-  minRange.value = current.min ?? field.min ?? 0;
+  const minHandle = document.createElement("button");
+  minHandle.type = "button";
+  minHandle.className = "budget-handle";
+  minHandle.setAttribute("aria-label", "Minimalny budżet");
 
-  const maxRange = document.createElement("input");
-  maxRange.type = "range";
-  maxRange.className = "budget-range budget-range-max";
-  maxRange.min = field.min ?? 0;
-  maxRange.max = field.max ?? 1000000;
-  maxRange.step = field.step ?? 10000;
-  maxRange.value = current.max ?? field.max ?? 1000000;
+  const maxHandle = document.createElement("button");
+  maxHandle.type = "button";
+  maxHandle.className = "budget-handle";
+  maxHandle.setAttribute("aria-label", "Maksymalny budżet");
+
+  const rangeMin = Number(field.min ?? 0);
+  const rangeMax = Number(field.max ?? 1000000);
+  const step = Number(field.step ?? 10000);
+
+  const clampToStep = (rawValue) => {
+    const stepped = Math.round(rawValue / step) * step;
+    return Math.min(rangeMax, Math.max(rangeMin, stepped));
+  };
+
+  const getCurrentRange = () => ({
+    min: Number((state[field.id] || {}).min ?? current.min ?? rangeMin),
+    max: Number((state[field.id] || {}).max ?? current.max ?? rangeMax),
+  });
 
   const updateTrack = () => {
-    const min = Number(minRange.value);
-    const max = Number(maxRange.value);
-    const rangeMin = Number(field.min ?? 0);
-    const rangeMax = Number(field.max ?? 1000000);
+    const { min, max } = getCurrentRange();
     const start = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
     const end = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
     activeTrack.style.left = `${start}%`;
     activeTrack.style.width = `${Math.max(end - start, 0)}%`;
-    minRange.style.zIndex = min > rangeMax - (rangeMax - rangeMin) / 4 ? "5" : "4";
-    maxRange.style.zIndex = "6";
+    minHandle.style.left = `${start}%`;
+    maxHandle.style.left = `${end}%`;
   };
 
-  minRange.addEventListener("input", () => {
-    if (Number(minRange.value) > Number(maxRange.value)) {
-      minRange.value = maxRange.value;
-    }
-    updateTrack();
-    syncBudgetState(Number(minRange.value), Number(maxRange.value));
-  });
+  const getValueFromClientX = (clientX) => {
+    const rect = sliderGroup.getBoundingClientRect();
+    const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+    return clampToStep(rangeMin + ratio * (rangeMax - rangeMin));
+  };
 
-  maxRange.addEventListener("input", () => {
-    if (Number(maxRange.value) < Number(minRange.value)) {
-      maxRange.value = minRange.value;
+  const moveNearestHandle = (clientX) => {
+    const nextValue = getValueFromClientX(clientX);
+    const currentRange = getCurrentRange();
+    const moveMin =
+      Math.abs(nextValue - currentRange.min) <= Math.abs(nextValue - currentRange.max);
+
+    if (moveMin) {
+      syncBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
+    } else {
+      syncBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
     }
-    updateTrack();
-    syncBudgetState(Number(minRange.value), Number(maxRange.value));
-  });
+  };
+
+  const bindHandleDrag = (handle, edge) => {
+    handle.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      handle.setPointerCapture(event.pointerId);
+
+      const onMove = (moveEvent) => {
+        const nextValue = getValueFromClientX(moveEvent.clientX);
+        const currentRange = getCurrentRange();
+
+        if (edge === "min") {
+          syncBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
+        } else {
+          syncBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
+        }
+      };
+
+      const onEnd = () => {
+        handle.removeEventListener("pointermove", onMove);
+        handle.removeEventListener("pointerup", onEnd);
+        handle.removeEventListener("pointercancel", onEnd);
+      };
+
+      handle.addEventListener("pointermove", onMove);
+      handle.addEventListener("pointerup", onEnd);
+      handle.addEventListener("pointercancel", onEnd);
+    });
+  };
+
+  bindHandleDrag(minHandle, "min");
+  bindHandleDrag(maxHandle, "max");
 
   sliderGroup.addEventListener("click", (event) => {
-    const rect = sliderGroup.getBoundingClientRect();
-    const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
-    const rawValue = (field.min ?? 0) + ratio * ((field.max ?? 1000000) - (field.min ?? 0));
-    const steppedValue = Math.round(rawValue / (field.step ?? 10000)) * (field.step ?? 10000);
-
-    const minValue = Number(minRange.value);
-    const maxValue = Number(maxRange.value);
-    const shouldMoveMin = Math.abs(steppedValue - minValue) <= Math.abs(steppedValue - maxValue);
-
-    if (shouldMoveMin) {
-      minRange.value = String(Math.min(steppedValue, maxValue));
-    } else {
-      maxRange.value = String(Math.max(steppedValue, minValue));
+    if (event.target === minHandle || event.target === maxHandle) {
+      return;
     }
-
-    updateTrack();
-    syncBudgetState(Number(minRange.value), Number(maxRange.value));
+    moveNearestHandle(event.clientX);
   });
 
-  sliderGroup.append(activeTrack, minRange, maxRange);
+  sliderGroup.append(baseTrack, activeTrack, minHandle, maxHandle);
   updateTrack();
   container.append(valuesRow, sliderGroup);
   return container;
