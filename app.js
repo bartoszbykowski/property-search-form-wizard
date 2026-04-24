@@ -1432,9 +1432,13 @@ function hydrateCityMap() {
       scrollWheelZoom: false,
     }).setView([50.2649, 19.0238], 11);
 
-    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
+    window.L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      {
+        subdomains: "abcd",
+        attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+      },
+    ).addTo(map);
 
     const geoJson = await getKatowiceDistrictsGeoJson();
     const selectedDistricts = new Set(state.districts || []);
