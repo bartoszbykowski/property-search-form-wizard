@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formularz Poszukiwania Nieruchomości</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="wizard-shell">
+        <header class="wizard-header">
+          <div><h2 id="section-title">Cel i tryb poszukiwania</h2></div>
+          <div class="progress-meta">
+            <span id="step-counter">Etap 1 / 9</span>
+          </div>
+        </header>
+
+        <nav id="step-tabs" class="step-tabs" aria-label="Etapy formularza"></nav>
+
+        <form id="property-form" class="form-card">
+          <div id="form-fields" class="form-fields"></div>
+
+          <section id="summary-panel" class="summary-panel is-hidden">
+            <div class="summary-head">
+              <h3>Podsumowanie odpowiedzi</h3>
+              <button class="ghost-button" id="copy-summary" type="button">
+                Kopiuj podsumowanie
+              </button>
+            </div>
+            <div id="summary-content" class="summary-content"></div>
+          </section>
+
+          <footer class="form-footer">
+            <div class="footer-actions">
+              <button id="prev-step" class="secondary-button" type="button">
+                Wstecz
+              </button>
+              <button id="next-step" class="primary-button" type="button">
+                Dalej
+              </button>
+            </div>
+          </footer>
+        </form>
+      </main>
+    </div>
+
+    <template id="matrix-template">
+      <div class="matrix-table"></div>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
