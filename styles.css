@@ -1,9 +1,30 @@
+html {
+  color-scheme: light dark;
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #161616;
+  --muted: #555555;
+  --border: #b8b8b8;
+  --panel: #ffffff;
+  --panel-alt: #f6f6f6;
+  --button-bg: #ffffff;
+  --button-text: #161616;
+  --button-border: #8f8f8f;
+  --input-bg: #ffffff;
+  --input-text: #161616;
+  --link: #0b57d0;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
   line-height: 1.4;
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
@@ -39,6 +60,9 @@ body {
 .field-card,
 .summary-panel {
   margin-bottom: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px;
 }
 
 .choice-grid {
@@ -67,6 +91,7 @@ body {
 .matrix-row-title {
   font-weight: 700;
   margin: 8px 0 4px;
+  color: var(--text);
 }
 
 .matrix-cell {
@@ -81,12 +106,17 @@ body {
 .input-group label {
   display: block;
   margin-bottom: 4px;
+  color: var(--text);
 }
 
 .input-group input,
 .input-group select {
   width: 100%;
   max-width: 320px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
 }
 
 .step-tab,
@@ -95,9 +125,9 @@ body {
 .ghost-button,
 .cell-button {
   appearance: auto;
-  border: 1px solid #999;
-  background: transparent;
-  color: inherit;
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
   padding: 6px 10px;
   cursor: pointer;
 }
@@ -116,6 +146,59 @@ body {
   display: none;
 }
 
+a {
+  color: var(--link);
+}
+
+iframe {
+  background: var(--panel-alt);
+}
+
 #progress-bar-fill {
   display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101214;
+    --text: #f3f5f7;
+    --muted: #b6bec8;
+    --border: #48515b;
+    --panel: #171a1f;
+    --panel-alt: #1f252c;
+    --button-bg: #222831;
+    --button-text: #f3f5f7;
+    --button-border: #5f6b77;
+    --input-bg: #11161b;
+    --input-text: #f3f5f7;
+    --link: #8ab4ff;
+  }
+
+  .hero-panel,
+  .wizard-header,
+  .step-tabs,
+  .form-card,
+  .field-card,
+  .summary-panel {
+    box-shadow: none;
+  }
+
+  .choice-card label,
+  .matrix-cell label,
+  .progressive-item label,
+  .cell-button,
+  .chip-note {
+    color: var(--text);
+  }
+
+  .matrix-row-title {
+    color: var(--text);
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    color: var(--text);
+  }
 }
