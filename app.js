@@ -478,7 +478,8 @@ const sections = [
         description:
           "Jeśli wybierzesz Katowice, możesz też zaznaczać dzielnice bezpośrednio na mapie.",
         type: "multi-dynamic",
-        visible: (state) => getDistrictOptions(state).length > 0,
+        visible: (state) =>
+          getDistrictOptions(state).length > 0 && !((state.cities || []).includes("Katowice")),
       },
       {
         id: "cityMap",
