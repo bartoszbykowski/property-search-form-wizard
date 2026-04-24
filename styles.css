@@ -154,6 +154,18 @@ iframe {
   background: var(--panel-alt);
 }
 
+.city-map-canvas {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid var(--border);
+  margin: 12px 0;
+  background: var(--panel-alt);
+}
+
+.leaflet-container {
+  color: #1f2937;
+}
+
 #progress-bar-fill {
   display: none;
 }
@@ -200,5 +212,9 @@ iframe {
   textarea,
   button {
     color: var(--text);
+  }
+
+  .city-map-canvas {
+    background: #0f1720;
   }
 }

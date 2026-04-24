@@ -1,4 +1,7 @@
 const STORAGE_KEY = "property-search-form-state-v1";
+const KATOWICE_DISTRICTS_GEOJSON_URL =
+  "https://services1.arcgis.com/BNOHq9FCYUCPx1D8/ArcGIS/rest/services/dzielnice_Katowic/FeatureServer/0/query?where=1%3D1&outFields=NAZWA&f=geojson";
+let katowiceDistrictsGeoJsonPromise;
 
 const countyCitiesByVoivodeship = {
   "dolnośląskie": [
@@ -381,6 +384,30 @@ const cityDistricts = {
     "Białołęka",
   ],
   Kraków: ["Stare Miasto", "Krowodrza", "Podgórze", "Czyżyny", "Dębniki"],
+  Katowice: [
+    "Śródmieście",
+    "Os. Paderewskiego-Muchowiec",
+    "Koszutka",
+    "Bogucice",
+    "Załęże",
+    "Osiedle Witosa",
+    "Osiedle Tysiąclecia",
+    "Dąb",
+    "Wełnowiec-Józefowiec",
+    "Załęska Hałda-Brynów",
+    "Brynów-Os. Zgrzebnioka",
+    "Ligota-Panewniki",
+    "Zawodzie",
+    "Dąbrówka Mała",
+    "Szopienice-Burowiec",
+    "Janów-Nikiszowiec",
+    "Giszowiec",
+    "Murcki",
+    "Piotrowice-Ochojec",
+    "Zarzecze",
+    "Kostuchna",
+    "Podlesie",
+  ],
   Wrocław: ["Krzyki", "Fabryczna", "Śródmieście", "Psie Pole", "Stare Miasto"],
   Gdańsk: ["Wrzeszcz", "Oliwa", "Przymorze", "Jasień", "Śródmieście"],
   Poznań: ["Jeżyce", "Grunwald", "Wilda", "Rataje", "Stare Miasto"],
@@ -444,6 +471,8 @@ const sections = [
       {
         id: "districts",
         label: "2.3. Czy interesują Cię konkretne dzielnice lub obszary?",
+        description:
+          "Jeśli wybierzesz Katowice, możesz też zaznaczać dzielnice bezpośrednio na mapie.",
         type: "multi-dynamic",
         visible: (state) => getDistrictOptions(state).length > 0,
       },
@@ -1098,6 +1127,8 @@ function renderStep() {
     .forEach((field) => {
       elements.formFields.appendChild(renderField(field));
     });
+
+  hydrateCityMap();
 }
 
 function renderField(field) {
@@ -1344,10 +1375,23 @@ function renderCityMapField() {
 
   const note = document.createElement("p");
   note.className = "field-description";
-  note.textContent =
-    cities.length > 1
-      ? `Pokazuję mapę dla pierwszego wybranego miasta: ${city}.`
-      : `Mapa dla miasta: ${city}.`;
+  note.textContent = cities.length > 1
+    ? `Pokazuję mapę dla pierwszego wybranego miasta: ${city}.`
+    : `Mapa dla miasta: ${city}.`;
+
+  if (city === "Katowice") {
+    const mapContainer = document.createElement("div");
+    mapContainer.id = "city-map-canvas";
+    mapContainer.className = "city-map-canvas";
+
+    const helper = document.createElement("p");
+    helper.className = "field-description";
+    helper.textContent =
+      "Kliknij dzielnicę na mapie, aby dodać ją lub usunąć z wyboru.";
+
+    container.append(note, helper, mapContainer);
+    return container;
+  }
 
   const iframe = document.createElement("iframe");
   iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(`${city}, Polska`)}&output=embed`;
@@ -1367,6 +1411,79 @@ function renderCityMapField() {
 
   container.append(note, iframe, link);
   return container;
+}
+
+function hydrateCityMap() {
+  const mapContainer = document.querySelector("#city-map-canvas");
+  const city = (state.cities || [])[0];
+
+  if (!mapContainer || city !== "Katowice" || !window.L) {
+    return;
+  }
+
+  window.setTimeout(async () => {
+    if (!document.body.contains(mapContainer)) {
+      return;
+    }
+
+    mapContainer.innerHTML = "";
+
+    const map = window.L.map(mapContainer, {
+      scrollWheelZoom: false,
+    }).setView([50.2649, 19.0238], 11);
+
+    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
+
+    const geoJson = await getKatowiceDistrictsGeoJson();
+    const selectedDistricts = new Set(state.districts || []);
+
+    const normalizeDistrictName = (name) =>
+      String(name || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace("Osiedle ", "Os. ");
+
+    const districtLayer = window.L.geoJSON(geoJson, {
+      style: (feature) => {
+        const name = normalizeDistrictName(feature?.properties?.NAZWA);
+        const selected = selectedDistricts.has(name);
+        return {
+          color: selected ? "#f97316" : "#64748b",
+          weight: selected ? 3 : 2,
+          fillColor: selected ? "#fb923c" : "#94a3b8",
+          fillOpacity: selected ? 0.35 : 0.16,
+        };
+      },
+      onEachFeature: (feature, layer) => {
+        const districtName = normalizeDistrictName(feature?.properties?.NAZWA);
+        layer.bindTooltip(districtName, { sticky: true });
+        layer.on("click", () => {
+          const next = new Set(state.districts || []);
+          if (next.has(districtName)) {
+            next.delete(districtName);
+          } else {
+            next.add(districtName);
+          }
+          state.districts = Array.from(next).sort((a, b) => a.localeCompare(b, "pl"));
+          persistState();
+          renderStep();
+        });
+      },
+    }).addTo(map);
+
+    map.fitBounds(districtLayer.getBounds(), { padding: [16, 16] });
+  }, 0);
+}
+
+async function getKatowiceDistrictsGeoJson() {
+  if (!katowiceDistrictsGeoJsonPromise) {
+    katowiceDistrictsGeoJsonPromise = fetch(KATOWICE_DISTRICTS_GEOJSON_URL).then((response) =>
+      response.json(),
+    );
+  }
+  return katowiceDistrictsGeoJsonPromise;
 }
 
 function renderNumberField(field) {
