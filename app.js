@@ -1676,6 +1676,26 @@ function renderBudgetRangeField(field) {
     syncBudgetState(Number(minRange.value), Number(maxRange.value));
   });
 
+  sliderGroup.addEventListener("click", (event) => {
+    const rect = sliderGroup.getBoundingClientRect();
+    const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
+    const rawValue = (field.min ?? 0) + ratio * ((field.max ?? 1000000) - (field.min ?? 0));
+    const steppedValue = Math.round(rawValue / (field.step ?? 10000)) * (field.step ?? 10000);
+
+    const minValue = Number(minRange.value);
+    const maxValue = Number(maxRange.value);
+    const shouldMoveMin = Math.abs(steppedValue - minValue) <= Math.abs(steppedValue - maxValue);
+
+    if (shouldMoveMin) {
+      minRange.value = String(Math.min(steppedValue, maxValue));
+    } else {
+      maxRange.value = String(Math.max(steppedValue, minValue));
+    }
+
+    updateTrack();
+    syncBudgetState(Number(minRange.value), Number(maxRange.value));
+  });
+
   sliderGroup.append(activeTrack, minRange, maxRange);
   updateTrack();
   container.append(valuesRow, sliderGroup);

@@ -211,6 +211,7 @@ body {
   background: transparent !important;
   -webkit-appearance: none;
   appearance: none;
+  pointer-events: none;
 }
 
 .budget-range::-webkit-slider-runnable-track {
@@ -234,6 +235,7 @@ body {
   box-shadow: 0 0 0 2px var(--panel);
   margin-top: -7px;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .budget-range::-moz-range-thumb {
@@ -244,6 +246,7 @@ body {
   border: 2px solid var(--button-border);
   box-shadow: 0 0 0 2px var(--panel);
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .choice-card,
