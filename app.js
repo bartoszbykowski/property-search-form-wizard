@@ -1523,19 +1523,31 @@ function renderNumberField(field) {
 
 function renderBudgetRangeField(field) {
   const container = document.createElement("div");
-  container.className = "range-grid";
+  container.className = "budget-range-field";
 
   const current = state[field.id] || {
     min: field.min ?? 0,
     max: field.max ?? 1000000,
   };
 
-  const sliderGroup = document.createElement("div");
-  sliderGroup.className = "input-group";
-  sliderGroup.innerHTML = `<label>Zakres na suwaku</label>`;
+  const valuesRow = document.createElement("div");
+  valuesRow.className = "budget-values-row";
+  valuesRow.innerHTML = `
+    <div class="budget-value-box">
+      <span>${field.minLabel || "Od"}</span>
+      <strong>${formatCurrency(current.min ?? field.min ?? 0)}</strong>
+    </div>
+    <div class="budget-value-box">
+      <span>${field.maxLabel || "Do"}</span>
+      <strong>${formatCurrency(current.max ?? field.max ?? 1000000)}</strong>
+    </div>
+  `;
 
+  const sliderGroup = document.createElement("div");
+  sliderGroup.className = "budget-slider-group";
   const minRange = document.createElement("input");
   minRange.type = "range";
+  minRange.className = "budget-range budget-range-min";
   minRange.min = field.min ?? 0;
   minRange.max = field.max ?? 1000000;
   minRange.step = field.step ?? 10000;
@@ -1543,6 +1555,7 @@ function renderBudgetRangeField(field) {
 
   const maxRange = document.createElement("input");
   maxRange.type = "range";
+  maxRange.className = "budget-range budget-range-max";
   maxRange.min = field.min ?? 0;
   maxRange.max = field.max ?? 1000000;
   maxRange.step = field.step ?? 10000;
@@ -1565,7 +1578,10 @@ function renderBudgetRangeField(field) {
   });
 
   sliderGroup.append(minRange, maxRange);
-  container.appendChild(sliderGroup);
+  container.append(valuesRow, sliderGroup);
+
+  const inputsRow = document.createElement("div");
+  inputsRow.className = "range-grid";
 
   [["min", field.minLabel], ["max", field.maxLabel]].forEach(([key, labelText]) => {
     const group = document.createElement("div");
@@ -1588,10 +1604,19 @@ function renderBudgetRangeField(field) {
     });
 
     group.appendChild(input);
-    container.appendChild(group);
+    inputsRow.appendChild(group);
   });
 
+  container.appendChild(inputsRow);
   return container;
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("pl-PL", {
+    style: "currency",
+    currency: "PLN",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
 }
 
 function renderRangeField(field) {
