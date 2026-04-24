@@ -438,15 +438,19 @@ const sections = [
       {
         id: "adults",
         label: "1.3. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
-        type: "number",
+        type: "count-slider",
         min: 1,
+        max: 10,
+        step: 1,
         visible: (state) => state.purpose === "dla siebie / rodziny",
       },
       {
         id: "children",
         label: "1.4. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
-        type: "number",
+        type: "count-slider",
         min: 0,
+        max: 10,
+        step: 1,
         visible: (state) => state.purpose === "dla siebie / rodziny",
       },
     ],
@@ -1171,6 +1175,9 @@ function renderField(field) {
     case "number":
       control = renderNumberField(field);
       break;
+    case "count-slider":
+      control = renderCountSliderField(field);
+      break;
     case "budget-range":
       control = renderBudgetRangeField(field);
       break;
@@ -1518,6 +1525,52 @@ function renderNumberField(field) {
 
   group.appendChild(input);
   container.appendChild(group);
+  return container;
+}
+
+function renderCountSliderField(field) {
+  const container = document.createElement("div");
+  container.className = "count-slider-field";
+
+  const currentValue =
+    typeof state[field.id] === "number" ? state[field.id] : (field.min ?? 0);
+
+  const valueBox = document.createElement("div");
+  valueBox.className = "count-slider-value";
+  valueBox.innerHTML = `<span>Wybrana liczba</span><strong>${currentValue}</strong>`;
+
+  const sliderWrap = document.createElement("div");
+  sliderWrap.className = "count-slider-wrap";
+
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.className = "count-slider-input";
+  slider.min = field.min ?? 0;
+  slider.max = field.max ?? 10;
+  slider.step = field.step ?? 1;
+  slider.value = currentValue;
+
+  slider.addEventListener("input", () => {
+    state[field.id] = Number(slider.value);
+    persistState();
+    renderStep();
+  });
+
+  const ticks = document.createElement("div");
+  ticks.className = "count-slider-ticks";
+  const tickValues = [];
+  for (let value = Number(slider.min); value <= Number(slider.max); value += Number(slider.step)) {
+    tickValues.push(value);
+  }
+  ticks.style.gridTemplateColumns = `repeat(${tickValues.length}, minmax(0, 1fr))`;
+  tickValues.forEach((value) => {
+    const tick = document.createElement("span");
+    tick.textContent = String(value);
+    ticks.appendChild(tick);
+  });
+
+  sliderWrap.append(slider, ticks);
+  container.append(valueBox, sliderWrap);
   return container;
 }
 
