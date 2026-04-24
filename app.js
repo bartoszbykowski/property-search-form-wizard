@@ -1532,19 +1532,52 @@ function renderBudgetRangeField(field) {
 
   const valuesRow = document.createElement("div");
   valuesRow.className = "budget-values-row";
-  valuesRow.innerHTML = `
-    <div class="budget-value-box">
-      <span>${field.minLabel || "Od"}</span>
-      <strong>${formatCurrency(current.min ?? field.min ?? 0)}</strong>
-    </div>
-    <div class="budget-value-box">
-      <span>${field.maxLabel || "Do"}</span>
-      <strong>${formatCurrency(current.max ?? field.max ?? 1000000)}</strong>
-    </div>
-  `;
+
+  const syncBudgetState = (nextMin, nextMax) => {
+    const boundedMin = Math.max(field.min ?? 0, Math.min(nextMin, nextMax));
+    const boundedMax = Math.min(field.max ?? 1000000, Math.max(nextMin, nextMax));
+    state[field.id] = { min: boundedMin, max: boundedMax };
+    persistState();
+    renderStep();
+  };
+
+  const buildBudgetInput = (key, label) => {
+    const box = document.createElement("label");
+    box.className = "budget-value-box";
+
+    const caption = document.createElement("span");
+    caption.textContent = label;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.className = "budget-value-input";
+    input.min = field.min ?? 0;
+    input.max = field.max ?? 1000000;
+    input.step = field.step ?? 10000;
+    input.value = current[key] ?? "";
+    input.addEventListener("input", () => {
+      const next = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
+      next[key] = input.value === "" ? "" : Number(input.value);
+      const safeMin = Number(next.min || field.min || 0);
+      const safeMax = Number(next.max || field.max || 1000000);
+      syncBudgetState(safeMin, safeMax);
+    });
+
+    box.append(caption, input);
+    return box;
+  };
+
+  valuesRow.append(
+    buildBudgetInput("min", field.minLabel || "Od"),
+    buildBudgetInput("max", field.maxLabel || "Do"),
+  );
 
   const sliderGroup = document.createElement("div");
   sliderGroup.className = "budget-slider-group";
+
+  const activeTrack = document.createElement("div");
+  activeTrack.className = "budget-slider-active";
+
   const minRange = document.createElement("input");
   minRange.type = "range";
   minRange.className = "budget-range budget-range-min";
@@ -1561,62 +1594,39 @@ function renderBudgetRangeField(field) {
   maxRange.step = field.step ?? 10000;
   maxRange.value = current.max ?? field.max ?? 1000000;
 
-  const syncBudgetState = (nextMin, nextMax) => {
-    const boundedMin = Math.max(field.min ?? 0, Math.min(nextMin, nextMax));
-    const boundedMax = Math.min(field.max ?? 1000000, Math.max(nextMin, nextMax));
-    state[field.id] = { min: boundedMin, max: boundedMax };
-    persistState();
-    renderStep();
+  const updateTrack = () => {
+    const min = Number(minRange.value);
+    const max = Number(maxRange.value);
+    const rangeMin = Number(field.min ?? 0);
+    const rangeMax = Number(field.max ?? 1000000);
+    const start = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
+    const end = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
+    activeTrack.style.left = `${start}%`;
+    activeTrack.style.width = `${Math.max(end - start, 0)}%`;
+    minRange.style.zIndex = min > rangeMax - (rangeMax - rangeMin) / 4 ? "5" : "4";
+    maxRange.style.zIndex = "6";
   };
 
   minRange.addEventListener("input", () => {
+    if (Number(minRange.value) > Number(maxRange.value)) {
+      minRange.value = maxRange.value;
+    }
+    updateTrack();
     syncBudgetState(Number(minRange.value), Number(maxRange.value));
   });
 
   maxRange.addEventListener("input", () => {
+    if (Number(maxRange.value) < Number(minRange.value)) {
+      maxRange.value = minRange.value;
+    }
+    updateTrack();
     syncBudgetState(Number(minRange.value), Number(maxRange.value));
   });
 
-  sliderGroup.append(minRange, maxRange);
+  sliderGroup.append(activeTrack, minRange, maxRange);
+  updateTrack();
   container.append(valuesRow, sliderGroup);
-
-  const inputsRow = document.createElement("div");
-  inputsRow.className = "range-grid";
-
-  [["min", field.minLabel], ["max", field.maxLabel]].forEach(([key, labelText]) => {
-    const group = document.createElement("div");
-    group.className = "input-group";
-    group.innerHTML = `<label for="${field.id}-${key}">${labelText}</label>`;
-
-    const input = document.createElement("input");
-    input.type = "number";
-    input.id = `${field.id}-${key}`;
-    input.min = field.min ?? 0;
-    input.max = field.max ?? 1000000;
-    input.step = field.step ?? 10000;
-    input.value = current[key] ?? "";
-    input.addEventListener("input", () => {
-      const next = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
-      next[key] = input.value === "" ? "" : Number(input.value);
-      const safeMin = Number(next.min || field.min || 0);
-      const safeMax = Number(next.max || field.max || 1000000);
-      syncBudgetState(safeMin, safeMax);
-    });
-
-    group.appendChild(input);
-    inputsRow.appendChild(group);
-  });
-
-  container.appendChild(inputsRow);
   return container;
-}
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat("pl-PL", {
-    style: "currency",
-    currency: "PLN",
-    maximumFractionDigits: 0,
-  }).format(value || 0);
 }
 
 function renderRangeField(field) {

@@ -81,6 +81,7 @@ body {
 }
 
 .budget-value-box {
+  display: block;
   min-width: 180px;
   padding: 8px 10px;
   border: 1px solid var(--border);
@@ -97,8 +98,12 @@ body {
   color: var(--muted);
 }
 
-.budget-value-box strong {
-  margin-top: 2px;
+.budget-value-input {
+  display: block;
+  width: 100%;
+  max-width: none !important;
+  margin-top: 6px;
+  font-weight: 600;
 }
 
 .budget-slider-group {
@@ -120,6 +125,15 @@ body {
   background: var(--border);
 }
 
+.budget-slider-active {
+  position: absolute;
+  top: 50%;
+  height: 6px;
+  transform: translateY(-50%);
+  background: var(--link);
+  pointer-events: none;
+}
+
 .budget-range {
   position: absolute;
   left: 0;
@@ -128,7 +142,6 @@ body {
   max-width: none;
   margin: 0;
   background: transparent !important;
-  pointer-events: none;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -151,8 +164,9 @@ body {
   border-radius: 50%;
   background: var(--button-bg);
   border: 2px solid var(--button-border);
-  pointer-events: auto;
+  box-shadow: 0 0 0 2px var(--panel);
   margin-top: -7px;
+  cursor: pointer;
 }
 
 .budget-range::-moz-range-thumb {
@@ -161,7 +175,8 @@ body {
   border-radius: 50%;
   background: var(--button-bg);
   border: 2px solid var(--button-border);
-  pointer-events: auto;
+  box-shadow: 0 0 0 2px var(--panel);
+  cursor: pointer;
 }
 
 .choice-card,
