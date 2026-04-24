@@ -445,11 +445,17 @@ const sections = [
         id: "districts",
         label: "2.3. Czy interesują Cię konkretne dzielnice lub obszary?",
         type: "multi-dynamic",
+        visible: (state) => getDistrictOptions(state).length > 0,
+      },
+      {
+        id: "cityMap",
+        label: "2.4. Podgląd wybranego miasta",
+        type: "city-map",
         visible: (state) => (state.cities || []).length > 0,
       },
       {
         id: "locationNeeds",
-        label: "2.4. Co jest dla Ciebie ważne w lokalizacji?",
+        label: "2.5. Co jest dla Ciebie ważne w lokalizacji?",
         type: "matrix",
         columns: ["konieczne", "ważne", "bez znaczenia"],
         rows: [
@@ -1117,10 +1123,13 @@ function renderField(field) {
       control = renderChoiceField(
         {
           ...field,
-          options: getDistrictOptions(),
+          options: getDistrictOptions(state),
         },
         true,
       );
+      break;
+    case "city-map":
+      control = renderCityMapField();
       break;
     case "search-single":
       control = renderSearchSingleField(field);
@@ -1163,7 +1172,7 @@ function renderChoiceField(field, multiple) {
   if (!field.options.length) {
     const info = document.createElement("span");
     info.className = "chip-note";
-    info.textContent = "Najpierw wybierz miasto, aby odblokować dzielnice.";
+    info.textContent = "Dla wybranego miasta nie mamy jeszcze listy dzielnic.";
     container.appendChild(info);
     return container;
   }
@@ -1317,6 +1326,46 @@ function renderSearchMultiField(field) {
   }
 
   container.appendChild(selectedWrap);
+  return container;
+}
+
+function renderCityMapField() {
+  const container = document.createElement("div");
+  const cities = state.cities || [];
+  const city = cities[0];
+
+  if (!city) {
+    const info = document.createElement("span");
+    info.className = "chip-note";
+    info.textContent = "Wybierz miasto, aby zobaczyć mapę.";
+    container.appendChild(info);
+    return container;
+  }
+
+  const note = document.createElement("p");
+  note.className = "field-description";
+  note.textContent =
+    cities.length > 1
+      ? `Pokazuję mapę dla pierwszego wybranego miasta: ${city}.`
+      : `Mapa dla miasta: ${city}.`;
+
+  const iframe = document.createElement("iframe");
+  iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(`${city}, Polska`)}&output=embed`;
+  iframe.title = `Mapa miasta ${city}`;
+  iframe.loading = "lazy";
+  iframe.referrerPolicy = "no-referrer-when-downgrade";
+  iframe.style.width = "100%";
+  iframe.style.maxWidth = "100%";
+  iframe.style.height = "320px";
+  iframe.style.border = "1px solid #ccc";
+
+  const link = document.createElement("a");
+  link.href = `https://www.google.com/maps/search/${encodeURIComponent(`${city}, Polska`)}`;
+  link.target = "_blank";
+  link.rel = "noreferrer";
+  link.textContent = "Otwórz większą mapę";
+
+  container.append(note, iframe, link);
   return container;
 }
 
@@ -1630,8 +1679,8 @@ function showRenovationBudget(currentState) {
     : Array.isArray(primary) && primary.includes("stan deweloperski");
 }
 
-function getDistrictOptions() {
-  const selectedCities = state.cities || [];
+function getDistrictOptions(currentState = state) {
+  const selectedCities = currentState.cities || [];
   return [...new Set(selectedCities.flatMap((city) => cityDistricts[city] || []))];
 }
 
@@ -1690,7 +1739,7 @@ function normalizeState() {
     delete state.financing;
   }
 
-  const availableDistricts = new Set(getDistrictOptions());
+  const availableDistricts = new Set(getDistrictOptions(state));
   if (Array.isArray(state.districts)) {
     state.districts = state.districts.filter((district) => availableDistricts.has(district));
   }
