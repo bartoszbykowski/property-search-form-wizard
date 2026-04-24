@@ -9,6 +9,21 @@
   <body>
     <div class="page-shell">
       <main class="wizard-shell">
+        <section id="welcome-screen" class="form-card">
+          <h1>Znajdźmy nieruchomość dopasowaną do Twoich potrzeb</h1>
+          <p>
+            Odpowiedz na kilka krótkich pytań, a łatwiej określimy, jakie oferty
+            naprawdę warto brać pod uwagę.
+          </p>
+          <p>
+            Formularz jest podzielony na etapy i zajmuje tylko kilka minut.
+            Możesz przejść go spokojnie krok po kroku.
+          </p>
+          <button id="start-form" class="primary-button" type="button">
+            Zaczynam
+          </button>
+        </section>
+
         <header class="wizard-header">
           <div><h2 id="section-title">Cel i tryb poszukiwania</h2></div>
           <div class="progress-meta">
@@ -21,17 +36,7 @@
         <form id="property-form" class="form-card">
           <div id="form-fields" class="form-fields"></div>
 
-          <section id="summary-panel" class="summary-panel is-hidden">
-            <div class="summary-head">
-              <h3>Podsumowanie odpowiedzi</h3>
-              <button class="ghost-button" id="copy-summary" type="button">
-                Kopiuj podsumowanie
-              </button>
-            </div>
-            <div id="summary-content" class="summary-content"></div>
-          </section>
-
-          <footer class="form-footer">
+          <footer id="form-footer" class="form-footer">
             <div class="footer-actions">
               <button id="prev-step" class="secondary-button" type="button">
                 Wstecz

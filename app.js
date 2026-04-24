@@ -394,7 +394,7 @@ const sections = [
     fields: [
       {
         id: "purpose",
-        label: "1.1. Dla kogo / w jakim celu szukasz nieruchomości?",
+        label: "1.1. W jakim celu szukasz nieruchomości?",
         type: "single",
         options: [
           "dla siebie / rodziny",
@@ -404,20 +404,20 @@ const sections = [
       },
       {
         id: "mode",
-        label: "1.2. Czy bierzesz pod uwagę kupno, najem, czy oba warianty?",
+        label: "1.2. Interesuje Cię zakup, najem czy oba warianty?",
         type: "multi",
         options: ["kupno", "najem"],
       },
       {
         id: "adults",
-        label: "1.3. Liczba osób dorosłych",
+        label: "1.3. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "number",
         min: 1,
         visible: (state) => state.purpose === "dla siebie / rodziny",
       },
       {
         id: "children",
-        label: "1.4. Liczba dzieci",
+        label: "1.4. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "number",
         min: 0,
         visible: (state) => state.purpose === "dla siebie / rodziny",
@@ -431,25 +431,25 @@ const sections = [
     fields: [
       {
         id: "voivodeship",
-        label: "2.1. Województwo",
+        label: "2.1. W jakim województwie chcesz szukać?",
         type: "search-single",
         options: Object.keys(countyCitiesByVoivodeship),
       },
       {
         id: "cities",
-        label: "2.2. Miasto",
+        label: "2.2. Jakie miasta bierzesz pod uwagę?",
         type: "search-multi",
         visible: (state) => Boolean(state.voivodeship),
       },
       {
         id: "districts",
-        label: "2.3. Dzielnice / obszary",
+        label: "2.3. Czy interesują Cię konkretne dzielnice lub obszary?",
         type: "multi-dynamic",
         visible: (state) => (state.cities || []).length > 0,
       },
       {
         id: "locationNeeds",
-        label: "2.4. Wymagania lokalizacyjne",
+        label: "2.4. Co jest dla Ciebie ważne w lokalizacji?",
         type: "matrix",
         columns: ["konieczne", "ważne", "bez znaczenia"],
         rows: [
@@ -466,19 +466,19 @@ const sections = [
   },
   {
     id: "section-3",
-    short: "Typ",
-    title: "Typ nieruchomości",
+    short: "Budynek",
+    title: "Budynek",
     fields: [
       {
         id: "marketType",
-        label: "3.1. Jaki rynek bierzesz pod uwagę?",
+        label: "3.1. Który rynek wchodzi w grę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: ["rynek wtórny", "rynek pierwotny"],
       },
       {
         id: "propertyTypes",
-        label: "3.2. Jakie typy nieruchomości bierzesz pod uwagę?",
+        label: "3.2. Jakiego typu nieruchomości szukasz?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -492,7 +492,7 @@ const sections = [
       },
       {
         id: "apartmentLevels",
-        label: "3.3. Czy mieszkanie może być jedno- lub dwupoziomowe?",
+        label: "3.3. Czy mieszkanie może być dwupoziomowe?",
         type: "single",
         options: [
           "tylko jednopoziomowe",
@@ -502,35 +502,9 @@ const sections = [
         ],
         visible: (state) => hasApartmentSelected(state),
       },
-    ],
-  },
-  {
-    id: "section-4",
-    short: "Metraż",
-    title: "Metraż, pokoje i piętro",
-    fields: [
-      {
-        id: "area",
-        label: "4.1. Powierzchnia",
-        description: "Wprowadź przedział w m². Krok rekomendowany: 5 m².",
-        type: "range",
-        minLabel: "Od",
-        maxLabel: "Do",
-        min: 0,
-        step: 5,
-      },
-      {
-        id: "rooms",
-        label: "4.2. Liczba pokoi",
-        type: "range",
-        minLabel: "Od",
-        maxLabel: "Do",
-        min: 0,
-        step: 1,
-      },
       {
         id: "floorAcceptance",
-        label: "4.3. Jakie położenie mieszkania akceptujesz?",
+        label: "3.4. Jakie położenie mieszkania bierzesz pod uwagę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -544,7 +518,7 @@ const sections = [
       },
       {
         id: "liftRequired",
-        label: "4.4. Czy winda jest wymagana?",
+        label: "3.5. Czy winda jest dla Ciebie ważna?",
         type: "single",
         options: [
           "tak, zawsze",
@@ -556,7 +530,7 @@ const sections = [
       },
       {
         id: "buildingStandard",
-        label: "4.5. Standard budynku i części wspólnych",
+        label: "3.6. Jak ważny jest dla Ciebie standard budynku i części wspólnych?",
         type: "matrix",
         columns: [
           "wysoka jakość",
@@ -574,33 +548,39 @@ const sections = [
     ],
   },
   {
-    id: "section-5",
-    short: "Układ",
-    title: "Układ i funkcje",
+    id: "section-4",
+    short: "Metraż",
+    title: "Metraż i pokoje",
     fields: [
       {
-        id: "kitchenLayout",
-        label: "5.1. Jaki układ kuchni akceptujesz?",
-        type: "matrix",
-        columns: ["preferuję", "dopuszczam", "nie chcę"],
-        rows: ["osobna kuchnia", "aneks kuchenny", "salon z aneksem"],
+        id: "area",
+        label: "4.1. Jakiej powierzchni szukasz?",
+        description: "Wprowadź przedział w m². Krok rekomendowany: 5 m².",
+        type: "range",
+        minLabel: "Od",
+        maxLabel: "Do",
+        min: 0,
+        step: 5,
       },
       {
-        id: "diningSpace",
-        label: "5.2. Czy potrzebujesz miejsca do jedzenia?",
-        type: "single",
-        options: [
-          "tak, stół dla 2 osób",
-          "tak, stół dla 4 osób",
-          "tak, stół dla 6+ osób",
-          "wystarczy wyspa / blat / barek",
-          "nie jest potrzebne",
-          "bez znaczenia",
-        ],
+        id: "rooms",
+        label: "4.2. Ile pokoi bierzesz pod uwagę?",
+        type: "range",
+        minLabel: "Od",
+        maxLabel: "Do",
+        min: 0,
+        step: 1,
       },
+    ],
+  },
+  {
+    id: "section-5",
+    short: "Układ",
+    title: "Układ",
+    fields: [
       {
         id: "storageNeeds",
-        label: "5.3. Jakiego przechowywania potrzebujesz?",
+        label: "5.1. Jakie miejsca do przechowywania są dla Ciebie ważne?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia"],
         rows: [
@@ -614,7 +594,7 @@ const sections = [
       },
       {
         id: "workSpace",
-        label: "5.4. Czy potrzebujesz miejsca do pracy?",
+        label: "5.2. Czy potrzebujesz miejsca do pracy w domu?",
         type: "single",
         options: [
           "tak, osobny pokój do pracy",
@@ -625,7 +605,7 @@ const sections = [
       },
       {
         id: "layoutChanges",
-        label: "5.5. Czy układ może wymagać zmian?",
+        label: "5.3. Czy dopuszczasz zmiany w układzie?",
         type: "single",
         options: [
           "nie, układ musi być dobry od razu",
@@ -638,12 +618,68 @@ const sections = [
   },
   {
     id: "section-6",
+    short: "Kuchnia",
+    title: "Kuchnia i jadalnia",
+    fields: [
+      {
+        id: "kitchenLayout",
+        label: "6.1. Jaki układ kuchni Ci odpowiada?",
+        type: "matrix",
+        columns: ["preferuję", "dopuszczam", "nie chcę"],
+        rows: ["osobna kuchnia", "aneks kuchenny", "salon z aneksem"],
+      },
+      {
+        id: "diningSpace",
+        label: "6.2. Czy potrzebujesz miejsca do jedzenia?",
+        type: "single",
+        options: [
+          "tak, stół dla 2 osób",
+          "tak, stół dla 4 osób",
+          "tak, stół dla 6+ osób",
+          "wystarczy wyspa / blat / barek",
+          "nie jest potrzebne",
+          "bez znaczenia",
+        ],
+      },
+      {
+        id: "readyKitchen",
+        label: "6.3. W jakim stanie ma być kuchnia?",
+        type: "single",
+        options: [
+          "tak, kuchnia musi być gotowa",
+          "może wymagać drobnego odświeżenia",
+          "może wymagać wymiany frontów / blatu",
+          "może wymagać pełnej wymiany",
+          "bez znaczenia, jeśli cena to rekompensuje",
+        ],
+      },
+      {
+        id: "kitchenEquipment",
+        label: "6.4. Jakie wyposażenie kuchni jest dla Ciebie ważne?",
+        type: "matrix",
+        columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
+        rows: [
+          "zmywarka",
+          "piekarnik",
+          "płyta indukcyjna",
+          "płyta gazowa",
+          "lodówka pełnowymiarowa",
+          "mała lodówka",
+          "okap",
+          "miejsce na stół",
+          "wyspa / barek",
+        ],
+      },
+    ],
+  },
+  {
+    id: "section-7",
     short: "Łazienka",
     title: "Łazienka, WC, pralka i suszarka",
     fields: [
       {
         id: "bathroomLayout",
-        label: "6.1. Jaki układ łazienki / WC akceptujesz?",
+        label: "7.1. Jaki układ łazienki i WC bierzesz pod uwagę?",
         type: "single",
         options: [
           "jedna łazienka z WC",
@@ -655,7 +691,7 @@ const sections = [
       },
       {
         id: "bathroomFeatures",
-        label: "6.2. Co powinno być w łazience?",
+        label: "7.2. Co jest dla Ciebie ważne w łazience?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: [
@@ -672,7 +708,7 @@ const sections = [
       },
       {
         id: "wcFeatures",
-        label: "6.3. Co powinno być w osobnym WC?",
+        label: "7.3. Co jest dla Ciebie ważne w osobnym WC?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: ["WC", "umywalka", "prysznic", "bidet"],
@@ -683,7 +719,7 @@ const sections = [
       },
       {
         id: "washingMachineLocation",
-        label: "6.4. Gdzie akceptujesz miejsce na pralkę?",
+        label: "7.4. Gdzie może znajdować się pralka?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -696,7 +732,7 @@ const sections = [
       },
       {
         id: "dryerSpace",
-        label: "6.5. Czy potrzebujesz miejsca na suszarkę bębnową?",
+        label: "7.5. Czy potrzebujesz miejsca na suszarkę bębnową?",
         type: "single",
         options: [
           "tak, obok pralki",
@@ -709,7 +745,7 @@ const sections = [
     ],
   },
   {
-    id: "section-7",
+    id: "section-8",
     short: "Dodatki",
     title: "Cechy dodatkowe",
     fields: [
@@ -740,7 +776,7 @@ const sections = [
       },
       {
         id: "parkingType",
-        label: "7.5. Typ miejsca postojowego",
+        label: "7.5. Jaki typ miejsca postojowego bierzesz pod uwagę?",
         type: "multi",
         options: ["miejsce naziemne", "hala garażowa", "garaż indywidualny", "dowolne"],
         visible: (state) => state.parking && state.parking !== "bez znaczenia",
@@ -748,42 +784,13 @@ const sections = [
     ],
   },
   {
-    id: "section-8",
+    id: "section-9",
     short: "Standard",
     title: "Standard, styl i zakres prac",
     fields: [
       {
-        id: "readyKitchen",
-        label: "8.1. Czy kuchnia musi być gotowa do używania?",
-        type: "single",
-        options: [
-          "tak, kuchnia musi być gotowa",
-          "może wymagać drobnego odświeżenia",
-          "może wymagać wymiany frontów / blatu",
-          "może wymagać pełnej wymiany",
-          "bez znaczenia, jeśli cena to rekompensuje",
-        ],
-      },
-      {
-        id: "kitchenEquipment",
-        label: "8.2. Jakie wyposażenie kuchni jest dla Ciebie ważne?",
-        type: "matrix",
-        columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
-        rows: [
-          "zmywarka",
-          "piekarnik",
-          "płyta indukcyjna",
-          "płyta gazowa",
-          "lodówka pełnowymiarowa",
-          "mała lodówka",
-          "okap",
-          "miejsce na stół",
-          "wyspa / barek",
-        ],
-      },
-      {
         id: "maxWorks",
-        label: "8.3. Jaki maksymalny zakres prac akceptujesz po zakupie?",
+        label: "9.1. Jaki remont jesteś gotów zaakceptować?",
         description:
           "Wybierasz maksymalny poziom prac. Wszystko powyżej tego progu powinno być odrzucane przez system.",
         type: "progressive",
@@ -798,7 +805,7 @@ const sections = [
       },
       {
         id: "noWorks",
-        label: "8.4. Czego nie chcesz robić po zakupie?",
+        label: "9.2. Czego nie chcesz robić po zakupie?",
         type: "multi",
         options: [
           "nie chcę robić kuchni",
@@ -814,7 +821,7 @@ const sections = [
       },
       {
         id: "elementsTolerance",
-        label: "8.5. Jak bardzo poniższe elementy muszą Ci odpowiadać od razu?",
+        label: "9.3. Jak ważne jest, żeby te elementy były w dobrym stanie od razu?",
         type: "matrix",
         columns: [
           "muszą mi pasować, nie chcę ich ruszać",
@@ -835,7 +842,7 @@ const sections = [
       },
       {
         id: "styleImportance",
-        label: "8.6. Jak ważny jest dla Ciebie styl wykończenia?",
+        label: "9.4. Jak ważny jest dla Ciebie styl wykończenia?",
         type: "single",
         options: [
           "bardzo ważny, szukam konkretnego stylu",
@@ -847,7 +854,7 @@ const sections = [
       },
       {
         id: "acceptedStyles",
-        label: "8.7. Jakie style akceptujesz?",
+        label: "9.5. Jakie style wchodzą w grę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -863,7 +870,7 @@ const sections = [
       },
       {
         id: "styleElements",
-        label: "8.8. Dla których elementów styl jest szczególnie ważny?",
+        label: "9.6. W których elementach styl ma dla Ciebie największe znaczenie?",
         type: "matrix",
         columns: ["bardzo ważny", "ważny", "bez znaczenia"],
         rows: [
@@ -880,7 +887,7 @@ const sections = [
       },
       {
         id: "finishQualityMatrix",
-        label: "8.9. Jakie wykończenie akceptujesz pod kątem wieku i jakości?",
+        label: "9.7. Jakie połączenie wieku i jakości wykończenia bierzesz pod uwagę?",
         description:
           "Kliknij wszystkie kombinacje, które są akceptowalne. Dzięki temu łatwo odróżnisz np. nowe budżetowe od starszego, ale jakościowego wykończenia.",
         type: "two-d-grid",
@@ -889,7 +896,7 @@ const sections = [
       },
       {
         id: "furnished",
-        label: "8.10. Czy lokal ma być umeblowany?",
+        label: "9.8. Czy lokal ma być umeblowany?",
         type: "single",
         options: [
           "tak, chcę lokal gotowy do zamieszkania z meblami",
@@ -900,7 +907,7 @@ const sections = [
       },
       {
         id: "primaryCondition",
-        label: "8.11. Rynek pierwotny: jaki stan lokalu akceptujesz?",
+        label: "9.9. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
         type: "multi",
         options: [
           "stan deweloperski",
@@ -913,7 +920,7 @@ const sections = [
       },
       {
         id: "primaryWait",
-        label: "8.12. Rynek pierwotny: czy akceptujesz oczekiwanie na odbiór?",
+        label: "9.10. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
         type: "single",
         options: [
           "tylko gotowe / oddane",
@@ -927,34 +934,40 @@ const sections = [
     ],
   },
   {
-    id: "section-9",
+    id: "section-10",
     short: "Budżet",
     title: "Budżet, czas i finansowanie",
     fields: [
       {
         id: "totalBudget",
-        label: "9.1. Maksymalny łączny budżet",
+        label: "10.1. Jaki budżet łącznie bierzesz pod uwagę?",
         description:
-          "Całkowita kwota obejmująca zakup lub najem oraz ewentualny remont / wykończenie.",
-        type: "number",
+          "Ustaw orientacyjny zakres całkowitego budżetu. Obejmuje zakup lub najem oraz ewentualny remont / wykończenie.",
+        type: "budget-range",
         min: 0,
+        max: 5000000,
+        step: 10000,
+        minLabel: "Od",
+        maxLabel: "Do",
       },
       {
         id: "purchaseBudget",
-        label: "9.2. Maksymalny budżet na zakup nieruchomości",
+        label: "10.2. Ile maksymalnie chcesz przeznaczyć na sam zakup nieruchomości?",
         type: "number",
         min: 0,
+        step: 10000,
       },
       {
         id: "renovationBudget",
-        label: "9.3. Maksymalny budżet na remont / wykończenie",
+        label: "10.3. Ile maksymalnie chcesz przeznaczyć na remont lub wykończenie?",
         type: "number",
         min: 0,
+        step: 10000,
         visible: (state) => showRenovationBudget(state),
       },
       {
         id: "renovationFlex",
-        label: "9.4. Czy budżet remontowy jest elastyczny?",
+        label: "10.4. Czy ten budżet na remont jest elastyczny?",
         type: "single",
         options: [
           "nie, to twardy limit",
@@ -966,7 +979,7 @@ const sections = [
       },
       {
         id: "timeline",
-        label: "9.5. W jakim czasie chcesz kupić / wynająć?",
+        label: "10.5. Kiedy chcesz kupić lub wynająć nieruchomość?",
         type: "single",
         options: [
           "jak najszybciej",
@@ -978,7 +991,7 @@ const sections = [
       },
       {
         id: "financing",
-        label: "9.6. Finansowanie",
+        label: "10.6. Jak planujesz sfinansować zakup?",
         type: "single",
         options: [
           "gotówka",
@@ -995,21 +1008,31 @@ const sections = [
 
 const state = loadState();
 let currentStep = 0;
+let hasStarted = Boolean(state.hasStarted);
 
 const elements = {
+  welcomeScreen: document.querySelector("#welcome-screen"),
+  startForm: document.querySelector("#start-form"),
+  propertyForm: document.querySelector("#property-form"),
+  formFooter: document.querySelector("#form-footer"),
+  wizardHeader: document.querySelector(".wizard-header"),
   formFields: document.querySelector("#form-fields"),
   sectionTitle: document.querySelector("#section-title"),
   stepCounter: document.querySelector("#step-counter"),
   stepTabs: document.querySelector("#step-tabs"),
   prevStep: document.querySelector("#prev-step"),
   nextStep: document.querySelector("#next-step"),
-  summaryPanel: document.querySelector("#summary-panel"),
-  summaryContent: document.querySelector("#summary-content"),
-  copySummary: document.querySelector("#copy-summary"),
 };
 
 renderTabs();
 renderStep();
+
+elements.startForm.addEventListener("click", () => {
+  hasStarted = true;
+  state.hasStarted = true;
+  persistState();
+  renderStep();
+});
 
 elements.prevStep.addEventListener("click", () => {
   currentStep = Math.max(0, currentStep - 1);
@@ -1021,19 +1044,6 @@ elements.nextStep.addEventListener("click", () => {
     currentStep += 1;
   }
   renderStep();
-});
-
-elements.copySummary.addEventListener("click", async () => {
-  const summary = buildSummaryText();
-  try {
-    await navigator.clipboard.writeText(summary);
-    elements.copySummary.textContent = "Skopiowano";
-    window.setTimeout(() => {
-      elements.copySummary.textContent = "Kopiuj podsumowanie";
-    }, 1600);
-  } catch (error) {
-    console.error(error);
-  }
 });
 
 function renderTabs() {
@@ -1056,12 +1066,22 @@ function renderTabs() {
 }
 
 function renderStep() {
+  elements.welcomeScreen.classList.toggle("is-hidden", hasStarted);
+  elements.wizardHeader.classList.toggle("is-hidden", !hasStarted);
+  elements.stepTabs.classList.toggle("is-hidden", !hasStarted);
+  elements.propertyForm.classList.toggle("is-hidden", !hasStarted);
+  elements.formFooter.classList.toggle("is-hidden", !hasStarted);
+
+  if (!hasStarted) {
+    return;
+  }
+
   const section = sections[currentStep];
   elements.sectionTitle.textContent = section.title;
   elements.stepCounter.textContent = `Etap ${currentStep + 1} / ${sections.length}`;
   elements.prevStep.disabled = currentStep === 0;
   elements.nextStep.textContent =
-    currentStep === sections.length - 1 ? "Zobacz podsumowanie" : "Dalej";
+    currentStep === sections.length - 1 ? "Dalej" : "Dalej";
 
   renderTabs();
 
@@ -1072,12 +1092,6 @@ function renderStep() {
     .forEach((field) => {
       elements.formFields.appendChild(renderField(field));
     });
-
-  const shouldShowSummary = currentStep === sections.length - 1;
-  elements.summaryPanel.classList.toggle("is-hidden", !shouldShowSummary);
-  if (shouldShowSummary) {
-    renderSummary();
-  }
 }
 
 function renderField(field) {
@@ -1116,6 +1130,9 @@ function renderField(field) {
       break;
     case "number":
       control = renderNumberField(field);
+      break;
+    case "budget-range":
+      control = renderBudgetRangeField(field);
       break;
     case "range":
       control = renderRangeField(field);
@@ -1193,7 +1210,7 @@ function renderSearchSingleField(field) {
 
   const group = document.createElement("div");
   group.className = "input-group";
-  group.innerHTML = `<label for="${field.id}">Wybierz województwo</label>`;
+  group.innerHTML = `<label for="${field.id}">Wybierz z listy lub wpisz nazwę</label>`;
 
   const input = document.createElement("input");
   const listId = `${field.id}-options`;
@@ -1230,7 +1247,7 @@ function renderSearchMultiField(field) {
 
   const group = document.createElement("div");
   group.className = "input-group";
-  group.innerHTML = `<label for="${field.id}-search">Wyszukaj i dodaj miasto</label>`;
+  group.innerHTML = `<label for="${field.id}-search">Wyszukaj miasto i dodaj do listy</label>`;
 
   const input = document.createElement("input");
   const listId = `${field.id}-options`;
@@ -1308,12 +1325,21 @@ function renderNumberField(field) {
   container.className = "number-grid";
   const group = document.createElement("div");
   group.className = "input-group";
-  group.innerHTML = `<label for="${field.id}">Wartość</label>`;
+  const numberLabel =
+    field.id === "adults"
+      ? "Liczba dorosłych"
+      : field.id === "children"
+        ? "Liczba dzieci"
+        : field.id === "purchaseBudget" || field.id === "renovationBudget"
+          ? "Kwota w zł"
+        : "Podaj kwotę lub liczbę";
+  group.innerHTML = `<label for="${field.id}">${numberLabel}</label>`;
 
   const input = document.createElement("input");
   input.type = "number";
   input.id = field.id;
   input.min = field.min ?? 0;
+  input.step = field.step ?? 1;
   input.value = state[field.id] ?? "";
   input.addEventListener("input", () => {
     state[field.id] = input.value === "" ? "" : Number(input.value);
@@ -1325,6 +1351,79 @@ function renderNumberField(field) {
   return container;
 }
 
+function renderBudgetRangeField(field) {
+  const container = document.createElement("div");
+  container.className = "range-grid";
+
+  const current = state[field.id] || {
+    min: field.min ?? 0,
+    max: field.max ?? 1000000,
+  };
+
+  const sliderGroup = document.createElement("div");
+  sliderGroup.className = "input-group";
+  sliderGroup.innerHTML = `<label>Zakres na suwaku</label>`;
+
+  const minRange = document.createElement("input");
+  minRange.type = "range";
+  minRange.min = field.min ?? 0;
+  minRange.max = field.max ?? 1000000;
+  minRange.step = field.step ?? 10000;
+  minRange.value = current.min ?? field.min ?? 0;
+
+  const maxRange = document.createElement("input");
+  maxRange.type = "range";
+  maxRange.min = field.min ?? 0;
+  maxRange.max = field.max ?? 1000000;
+  maxRange.step = field.step ?? 10000;
+  maxRange.value = current.max ?? field.max ?? 1000000;
+
+  const syncBudgetState = (nextMin, nextMax) => {
+    const boundedMin = Math.max(field.min ?? 0, Math.min(nextMin, nextMax));
+    const boundedMax = Math.min(field.max ?? 1000000, Math.max(nextMin, nextMax));
+    state[field.id] = { min: boundedMin, max: boundedMax };
+    persistState();
+    renderStep();
+  };
+
+  minRange.addEventListener("input", () => {
+    syncBudgetState(Number(minRange.value), Number(maxRange.value));
+  });
+
+  maxRange.addEventListener("input", () => {
+    syncBudgetState(Number(minRange.value), Number(maxRange.value));
+  });
+
+  sliderGroup.append(minRange, maxRange);
+  container.appendChild(sliderGroup);
+
+  [["min", field.minLabel], ["max", field.maxLabel]].forEach(([key, labelText]) => {
+    const group = document.createElement("div");
+    group.className = "input-group";
+    group.innerHTML = `<label for="${field.id}-${key}">${labelText}</label>`;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = `${field.id}-${key}`;
+    input.min = field.min ?? 0;
+    input.max = field.max ?? 1000000;
+    input.step = field.step ?? 10000;
+    input.value = current[key] ?? "";
+    input.addEventListener("input", () => {
+      const next = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
+      next[key] = input.value === "" ? "" : Number(input.value);
+      const safeMin = Number(next.min || field.min || 0);
+      const safeMax = Number(next.max || field.max || 1000000);
+      syncBudgetState(safeMin, safeMax);
+    });
+
+    group.appendChild(input);
+    container.appendChild(group);
+  });
+
+  return container;
+}
+
 function renderRangeField(field) {
   const container = document.createElement("div");
   container.className = "range-grid";
@@ -1333,7 +1432,7 @@ function renderRangeField(field) {
   [["min", field.minLabel], ["max", field.maxLabel]].forEach(([key, labelText]) => {
     const group = document.createElement("div");
     group.className = "input-group";
-    group.innerHTML = `<label for="${field.id}-${key}">${labelText}</label>`;
+    group.innerHTML = `<label for="${field.id}-${key}">${labelText || (key === "min" ? "Minimum" : "Maksimum")}</label>`;
 
     const input = document.createElement("input");
     input.type = "number";
@@ -1497,107 +1596,6 @@ function renderTwoDGrid(field) {
 
   container.appendChild(board);
   return container;
-}
-
-function renderSummary() {
-  elements.summaryContent.innerHTML = "";
-
-  sections.forEach((section) => {
-    const visibleFields = section.fields.filter((field) => isVisible(field));
-    const block = document.createElement("section");
-    block.className = "summary-section";
-
-    const title = document.createElement("h4");
-    title.textContent = section.title;
-    block.appendChild(title);
-
-    const list = document.createElement("ul");
-    list.className = "summary-list";
-    let hasContent = false;
-
-    visibleFields.forEach((field) => {
-      const value = summarizeField(field);
-      if (!value) {
-        return;
-      }
-      hasContent = true;
-      const item = document.createElement("li");
-      item.innerHTML = `<strong>${field.label}</strong>: ${value}`;
-      list.appendChild(item);
-    });
-
-    if (hasContent) {
-      block.appendChild(list);
-    } else {
-      const empty = document.createElement("p");
-      empty.className = "summary-empty";
-      empty.textContent = "Brak odpowiedzi w tej sekcji.";
-      block.appendChild(empty);
-    }
-
-    elements.summaryContent.appendChild(block);
-  });
-
-  const systemBlock = document.createElement("section");
-  systemBlock.className = "summary-section";
-  systemBlock.innerHTML = `
-    <h4>10. Logika systemowa</h4>
-    <ul class="summary-list">
-      <li>Odrzucaj oferty przekraczające budżet całkowity lub budżet zakupu.</li>
-      <li>Odrzucaj oferty wymagające prac powyżej wybranego poziomu <strong>${state.maxWorks || "A0"}</strong>.</li>
-      <li>Odrzucaj oferty niespełniające wymagań oznaczonych jako konieczne oraz położeń pięter oznaczonych jako nie chcę.</li>
-      <li>Podbijaj scoring za zgodność stylu, układu, lokalizacji i dodatków.</li>
-    </ul>
-  `;
-  elements.summaryContent.appendChild(systemBlock);
-}
-
-function summarizeField(field) {
-  const value = state[field.id];
-  if (value == null || value === "" || (Array.isArray(value) && value.length === 0)) {
-    return "";
-  }
-
-  if (field.type === "matrix") {
-    const entries = Object.entries(value || {});
-    return entries.length ? entries.map(([k, v]) => `${k}: ${v}`).join("; ") : "";
-  }
-
-  if (field.type === "range") {
-    return `${value.min || "?"} - ${value.max || "?"}`;
-  }
-
-  if (field.type === "progressive") {
-    const option = field.options.find((item) => item.code === value);
-    return option ? `${option.code} - ${option.label}` : value;
-  }
-
-  if (field.type === "two-d-grid") {
-    return value.join("; ");
-  }
-
-  return Array.isArray(value) ? value.join(", ") : String(value);
-}
-
-function buildSummaryText() {
-  return sections
-    .map((section) => {
-      const entries = section.fields
-        .filter((field) => isVisible(field))
-        .map((field) => {
-          const value = summarizeField(field);
-          return value ? `${field.label}: ${value}` : null;
-        })
-        .filter(Boolean);
-
-      return `${section.title}\n${entries.length ? entries.join("\n") : "Brak odpowiedzi."}`;
-    })
-    .concat([
-      "10. Logika systemowa",
-      `Maksymalny zakres prac: ${state.maxWorks || "A0"}`,
-      "Filtruj oferty poza budżetem i niespełniające wymagań koniecznych.",
-    ])
-    .join("\n\n");
 }
 
 function isVisible(field) {
