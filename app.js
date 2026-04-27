@@ -683,14 +683,13 @@ const sections = [
       },
       {
         id: "readyKitchen",
-        label: "6.3. W jakim stanie ma być kuchnia?",
+        label: "6.3. Jeśli kuchnia nie spełnia oczekiwań od razu, co akceptujesz?",
         type: "single",
         options: [
-          "tak, kuchnia musi być gotowa",
-          "może wymagać drobnego odświeżenia",
-          "może wymagać wymiany frontów / blatu",
-          "może wymagać pełnej wymiany",
-          "bez znaczenia, jeśli cena to rekompensuje",
+          "musi być gotowa od razu",
+          "może wymagać drobnego odświeżenia w budżecie",
+          "może wymagać większej zmiany, jeśli całość się opłaca",
+          "kuchnia nie jest dla mnie kluczowa na starcie",
         ],
       },
       {
@@ -826,11 +825,23 @@ const sections = [
   {
     id: "section-9",
     short: "Standard",
-    title: "Standard, styl i zakres prac",
+    title: "Stan, potencjał zmian i zakres prac",
     fields: [
       {
+        id: "changeBudgetApproach",
+        label: "9.1. Jeśli nieruchomość nie jest idealna od razu, co bierzesz pod uwagę?",
+        description:
+          "To pytanie ustawia kontekst dla kolejnych odpowiedzi: czy ważniejsze jest, żeby wszystko było gotowe od razu, czy dopuszczasz zmiany, jeśli całość zmieści się w budżecie zakupu i remontu.",
+        type: "single",
+        options: [
+          "większość rzeczy ma być gotowa od razu",
+          "pewne rzeczy mogą wymagać zmian, jeśli zmieszczę się w budżecie zakupu i remontu",
+          "dopuszczam większe zmiany, jeśli całość finansowo się spina",
+        ],
+      },
+      {
         id: "maxWorks",
-        label: "9.1. Jaki remont jesteś gotów zaakceptować?",
+        label: "9.2. Jaki zakres zmian po zakupie realnie bierzesz pod uwagę?",
         description:
           "Wybierasz maksymalny poziom prac. Wszystko powyżej tego progu powinno być odrzucane przez system.",
         type: "progressive",
@@ -845,7 +856,7 @@ const sections = [
       },
       {
         id: "noWorks",
-        label: "9.2. Czego nie chcesz robić po zakupie?",
+        label: "9.3. Na co nie chcesz przeznaczać czasu i budżetu po zakupie?",
         type: "multi",
         options: [
           "nie chcę robić kuchni",
@@ -861,13 +872,13 @@ const sections = [
       },
       {
         id: "elementsTolerance",
-        label: "9.3. Jak ważne jest, żeby te elementy były w dobrym stanie od razu?",
+        label: "9.4. Jeśli te elementy nie są dziś w dobrym stanie, co akceptujesz?",
         type: "matrix",
         columns: [
-          "muszą mi pasować, nie chcę ich ruszać",
-          "mogą być przeciętne, ale używalne",
-          "mogą być słabe, jeśli cena to rekompensuje",
-          "bez znaczenia, i tak planuję je zmienić",
+          "muszą być dobre od razu",
+          "mogą wymagać drobnych zmian w budżecie",
+          "mogą wymagać większych zmian, jeśli całość się spina",
+          "nie są dla mnie kluczowe",
         ],
         rows: [
           "kuchnia",
@@ -882,7 +893,7 @@ const sections = [
       },
       {
         id: "styleImportance",
-        label: "9.4. Jak ważny jest dla Ciebie styl wykończenia?",
+        label: "9.5. Jak ważny jest dla Ciebie styl wykończenia?",
         type: "single",
         options: [
           "bardzo ważny, szukam konkretnego stylu",
@@ -894,7 +905,7 @@ const sections = [
       },
       {
         id: "acceptedStyles",
-        label: "9.5. Jakie style wchodzą w grę?",
+        label: "9.6. Jakie style wchodzą w grę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -910,7 +921,7 @@ const sections = [
       },
       {
         id: "styleElements",
-        label: "9.6. W których elementach styl ma dla Ciebie największe znaczenie?",
+        label: "9.7. W których elementach styl ma dla Ciebie największe znaczenie?",
         type: "matrix",
         columns: ["bardzo ważny", "ważny", "bez znaczenia"],
         rows: [
@@ -927,7 +938,7 @@ const sections = [
       },
       {
         id: "finishQualityMatrix",
-        label: "9.7. Jakiego wykończenia jesteś gotów szukać?",
+        label: "9.8. Jakiego wykończenia jesteś gotów szukać?",
         type: "single",
         options: [
           "tylko nowe lub prawie nowe",
@@ -938,7 +949,7 @@ const sections = [
       },
       {
         id: "furnished",
-        label: "9.8. Czy lokal ma być umeblowany?",
+        label: "9.9. Czy lokal ma być umeblowany?",
         type: "single",
         options: [
           "tak, chcę lokal gotowy do zamieszkania z meblami",
@@ -949,7 +960,7 @@ const sections = [
       },
       {
         id: "primaryCondition",
-        label: "9.9. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
+        label: "9.10. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
         type: "multi",
         options: [
           "stan deweloperski",
@@ -962,7 +973,7 @@ const sections = [
       },
       {
         id: "primaryWait",
-        label: "9.10. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
+        label: "9.11. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
         type: "single",
         options: [
           "tylko gotowe / oddane",
@@ -1958,7 +1969,13 @@ function styleMatters(currentState) {
 function showRenovationBudget(currentState) {
   const works = currentState.maxWorks;
   const primary = currentState.primaryCondition || [];
+  const approach = currentState.changeBudgetApproach;
   return works && works !== "A0"
+    ? true
+    : [
+        "pewne rzeczy mogą wymagać zmian, jeśli zmieszczę się w budżecie zakupu i remontu",
+        "dopuszczam większe zmiany, jeśli całość finansowo się spina",
+      ].includes(approach)
     ? true
     : Array.isArray(primary) && primary.includes("stan deweloperski");
 }
