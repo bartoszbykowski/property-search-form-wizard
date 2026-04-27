@@ -1668,6 +1668,7 @@ function renderBudgetRangeField(field) {
   const rangeMin = Number(field.min ?? 0);
   const rangeMax = Number(field.max ?? 1000000);
   const step = Number(field.step ?? 10000);
+  let ignoreTrackClickUntil = 0;
 
   const clampToStep = (rawValue) => {
     const stepped = Math.round(rawValue / step) * step;
@@ -1711,7 +1712,7 @@ function renderBudgetRangeField(field) {
   const bindHandleDrag = (handle, edge) => {
     handle.addEventListener("pointerdown", (event) => {
       event.preventDefault();
-      handle.setPointerCapture(event.pointerId);
+      ignoreTrackClickUntil = Date.now() + 200;
 
       const onMove = (moveEvent) => {
         const nextValue = getValueFromClientX(moveEvent.clientX);
@@ -1725,14 +1726,15 @@ function renderBudgetRangeField(field) {
       };
 
       const onEnd = () => {
-        handle.removeEventListener("pointermove", onMove);
-        handle.removeEventListener("pointerup", onEnd);
-        handle.removeEventListener("pointercancel", onEnd);
+        ignoreTrackClickUntil = Date.now() + 200;
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onEnd);
+        window.removeEventListener("pointercancel", onEnd);
       };
 
-      handle.addEventListener("pointermove", onMove);
-      handle.addEventListener("pointerup", onEnd);
-      handle.addEventListener("pointercancel", onEnd);
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onEnd);
+      window.addEventListener("pointercancel", onEnd);
     });
   };
 
@@ -1740,6 +1742,9 @@ function renderBudgetRangeField(field) {
   bindHandleDrag(maxHandle, "max");
 
   sliderGroup.addEventListener("click", (event) => {
+    if (Date.now() < ignoreTrackClickUntil) {
+      return;
+    }
     if (event.target === minHandle || event.target === maxHandle) {
       return;
     }
