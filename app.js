@@ -502,6 +502,19 @@ const sections = [
           "łatwy wyjazd z miasta",
         ],
       },
+      {
+        id: "locationProximity",
+        label: "2.6. Jak blisko ważnych miejsc jesteś w stanie mieszkać?",
+        description:
+          "Chodzi o ogólny poziom proximity, który akceptujesz na co dzień. To pomaga odróżnić osoby szukające wszystkiego w spacerze od tych, które dopuszczają krótki dojazd.",
+        type: "single",
+        options: [
+          "chcę mieć większość ważnych miejsc w zasięgu spaceru, do 10 minut",
+          "akceptuję krótki spacer lub szybki dojazd, do około 15 minut",
+          "akceptuję dojazd do około 20-25 minut, jeśli lokalizacja ma inne zalety",
+          "proximity nie jest dla mnie kluczowe, ważniejsze są cena i parametry",
+        ],
+      },
     ],
   },
   {
