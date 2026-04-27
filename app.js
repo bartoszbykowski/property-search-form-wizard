@@ -927,12 +927,14 @@ const sections = [
       },
       {
         id: "finishQualityMatrix",
-        label: "9.7. Jakie połączenie wieku i jakości wykończenia bierzesz pod uwagę?",
-        description:
-          "Kliknij wszystkie kombinacje, które są akceptowalne. Dzięki temu łatwo odróżnisz np. nowe budżetowe od starszego, ale jakościowego wykończenia.",
-        type: "two-d-grid",
-        xAxis: ["budżetowe", "standardowe", "podwyższone", "premium"],
-        yAxis: ["nowe", "kilkuletnie", "starsze, ale zadbane", "stare"],
+        label: "9.7. Jakiego wykończenia jesteś gotów szukać?",
+        type: "single",
+        options: [
+          "tylko nowe lub prawie nowe",
+          "może być kilkuletnie, jeśli jest zadbane",
+          "może być starsze, jeśli jest w dobrym stanie",
+          "wiek wykończenia ma mniejsze znaczenie niż cena i układ",
+        ],
       },
       {
         id: "furnished",
