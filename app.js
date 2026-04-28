@@ -1244,6 +1244,9 @@ function renderChoiceField(field, multiple) {
     input.id = `${field.id}-${index}`;
     input.checked = multiple ? values.includes(option) : values === option;
     input.addEventListener("change", () => {
+      const shouldAdvancePurposeScreen =
+        !multiple && field.id === "purpose" && state[field.id] !== option;
+
       if (multiple) {
         const next = new Set(state[field.id] || []);
         if (input.checked) {
@@ -1257,6 +1260,12 @@ function renderChoiceField(field, multiple) {
       }
       normalizeState();
       persistState();
+
+      if (shouldAdvancePurposeScreen) {
+        const visibleSections = getVisibleSections();
+        currentStep = Math.min(currentStep + 1, Math.max(visibleSections.length - 1, 0));
+      }
+
       renderStep();
     });
 
