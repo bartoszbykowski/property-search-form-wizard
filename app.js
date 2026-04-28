@@ -1087,6 +1087,11 @@ elements.prevStep.addEventListener("click", () => {
 
 elements.nextStep.addEventListener("click", () => {
   const visibleSections = getVisibleSections();
+  const currentSection = visibleSections[currentStep];
+  if (currentSection?.id === "section-1" && !state.purpose) {
+    renderStep();
+    return;
+  }
   if (currentStep < visibleSections.length - 1) {
     currentStep += 1;
   }
@@ -1133,11 +1138,10 @@ function renderStep() {
   currentStep = Math.min(currentStep, Math.max(visibleSections.length - 1, 0));
   const section = visibleSections[currentStep];
   const hideStepLabels = section.id === "section-1";
-  const hideFooterNavigation = section.id === "section-1";
 
   elements.wizardHeader.classList.toggle("is-hidden", hideStepLabels);
   elements.stepTabs.classList.toggle("is-hidden", hideStepLabels);
-  elements.formFooter.classList.toggle("is-hidden", hideFooterNavigation);
+  elements.formFooter.classList.remove("is-hidden");
   elements.sectionTitle.textContent = section.title;
   elements.stepCounter.textContent = `Etap ${currentStep + 1} / ${visibleSections.length}`;
   elements.prevStep.disabled = currentStep === 0;
@@ -1245,7 +1249,7 @@ function renderChoiceField(field, multiple) {
     input.name = field.id;
     input.id = `${field.id}-${index}`;
     input.checked = multiple ? values.includes(option) : values === option;
-    const commitChoice = (shouldAdvancePurposeScreen = false) => {
+    const commitChoice = () => {
       if (multiple) {
         const next = new Set(state[field.id] || []);
         if (input.checked) {
@@ -1260,27 +1264,12 @@ function renderChoiceField(field, multiple) {
       normalizeState();
       persistState();
 
-      if (shouldAdvancePurposeScreen) {
-        const visibleSections = getVisibleSections();
-        currentStep = Math.min(currentStep + 1, Math.max(visibleSections.length - 1, 0));
-      }
-
       renderStep();
     };
 
     input.addEventListener("change", () => {
-      const shouldAdvancePurposeScreen =
-        !multiple && field.id === "purpose" && state[field.id] !== option;
-      commitChoice(shouldAdvancePurposeScreen);
+      commitChoice();
     });
-
-    if (!multiple && field.id === "purpose") {
-      input.addEventListener("click", () => {
-        if (state[field.id] === option && input.checked) {
-          commitChoice(true);
-        }
-      });
-    }
 
     const label = document.createElement("label");
     label.htmlFor = input.id;
