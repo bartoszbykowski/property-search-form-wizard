@@ -965,7 +965,7 @@ const sections = [
   {
     id: "section-10",
     short: "Budżet",
-    title: "Budżet, czas i finansowanie",
+    title: "Budżet, finansowanie i czas",
     fields: [
       {
         id: "totalBudget",
@@ -1087,7 +1087,7 @@ function renderTabs() {
     if (index === currentStep) {
       button.classList.add("is-active");
     }
-    button.innerHTML = `<strong>${index + 1}</strong><span>${section.short}</span>`;
+    button.innerHTML = `<strong>${index + 1}</strong><span>${section.title}</span>`;
     button.addEventListener("click", () => {
       currentStep = index;
       renderStep();
