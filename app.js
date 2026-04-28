@@ -825,7 +825,7 @@ const sections = [
   },
   {
     id: "section-9",
-    short: "Standard",
+    short: "Stan",
     title: "Stan, styl i zakres prac",
     fields: [
       {
