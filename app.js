@@ -1245,10 +1245,7 @@ function renderChoiceField(field, multiple) {
     input.name = field.id;
     input.id = `${field.id}-${index}`;
     input.checked = multiple ? values.includes(option) : values === option;
-    input.addEventListener("change", () => {
-      const shouldAdvancePurposeScreen =
-        !multiple && field.id === "purpose" && state[field.id] !== option;
-
+    const commitChoice = (shouldAdvancePurposeScreen = false) => {
       if (multiple) {
         const next = new Set(state[field.id] || []);
         if (input.checked) {
@@ -1269,7 +1266,21 @@ function renderChoiceField(field, multiple) {
       }
 
       renderStep();
+    };
+
+    input.addEventListener("change", () => {
+      const shouldAdvancePurposeScreen =
+        !multiple && field.id === "purpose" && state[field.id] !== option;
+      commitChoice(shouldAdvancePurposeScreen);
     });
+
+    if (!multiple && field.id === "purpose") {
+      input.addEventListener("click", () => {
+        if (state[field.id] === option && input.checked) {
+          commitChoice(true);
+        }
+      });
+    }
 
     const label = document.createElement("label");
     label.htmlFor = input.id;
