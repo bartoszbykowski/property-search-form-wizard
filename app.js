@@ -430,12 +430,6 @@ const sections = [
         ],
       },
       {
-        id: "mode",
-        label: "1.2. Interesuje Cię zakup, najem czy oba warianty?",
-        type: "multi",
-        options: ["kupno", "najem"],
-      },
-      {
         id: "adults",
         label: "1.3. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "count-slider",
@@ -452,6 +446,12 @@ const sections = [
         max: 10,
         step: 1,
         visible: (state) => state.purpose === "dla siebie / rodziny",
+      },
+      {
+        id: "mode",
+        label: "1.2. Interesuje Cię zakup, najem czy oba warianty?",
+        type: "multi",
+        options: ["kupno", "najem"],
       },
     ],
   },
