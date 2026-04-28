@@ -1050,7 +1050,7 @@ const sections = [
   },
 ];
 
-sections.splice(1, 0, sections.splice(sections.findIndex((section) => section.id === "section-10"), 1)[0]);
+sections.splice(3, 0, sections.splice(sections.findIndex((section) => section.id === "section-10"), 1)[0]);
 
 const state = loadState();
 let currentStep = 0;
