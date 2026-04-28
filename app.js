@@ -431,7 +431,7 @@ const sections = [
       },
       {
         id: "adults",
-        label: "1.3. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
+        label: "1.2. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "count-slider",
         min: 1,
         max: 10,
@@ -440,7 +440,7 @@ const sections = [
       },
       {
         id: "children",
-        label: "1.4. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
+        label: "1.3. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "count-slider",
         min: 0,
         max: 10,
@@ -449,7 +449,7 @@ const sections = [
       },
       {
         id: "mode",
-        label: "1.2. Interesuje Cię zakup, najem czy oba warianty?",
+        label: "1.4. Interesuje Cię zakup, najem czy oba warianty?",
         type: "multi",
         options: ["kupno", "najem"],
       },
