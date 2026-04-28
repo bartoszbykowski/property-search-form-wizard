@@ -1133,9 +1133,11 @@ function renderStep() {
   currentStep = Math.min(currentStep, Math.max(visibleSections.length - 1, 0));
   const section = visibleSections[currentStep];
   const hideStepLabels = section.id === "section-1";
+  const hideFooterNavigation = section.id === "section-1";
 
   elements.wizardHeader.classList.toggle("is-hidden", hideStepLabels);
   elements.stepTabs.classList.toggle("is-hidden", hideStepLabels);
+  elements.formFooter.classList.toggle("is-hidden", hideFooterNavigation);
   elements.sectionTitle.textContent = section.title;
   elements.stepCounter.textContent = `Etap ${currentStep + 1} / ${visibleSections.length}`;
   elements.prevStep.disabled = currentStep === 0;
