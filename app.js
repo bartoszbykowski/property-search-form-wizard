@@ -429,9 +429,17 @@ const sections = [
           "pod działalność / dla firmy",
         ],
       },
+    ],
+  },
+  {
+    id: "section-1-household",
+    short: "Dom",
+    title: "Gospodarstwo domowe",
+    visible: (state) => state.purpose === "dla siebie / rodziny",
+    fields: [
       {
         id: "adults",
-        label: "1.2. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
+        label: "1.3. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "count-slider",
         min: 1,
         max: 10,
@@ -440,16 +448,23 @@ const sections = [
       },
       {
         id: "children",
-        label: "1.3. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
+        label: "1.4. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "count-slider",
         min: 0,
         max: 10,
         step: 1,
         visible: (state) => state.purpose === "dla siebie / rodziny",
       },
+    ],
+  },
+  {
+    id: "section-1-mode",
+    short: "Tryb",
+    title: "Tryb poszukiwania",
+    fields: [
       {
         id: "mode",
-        label: "1.4. Interesuje Cię zakup, najem czy oba warianty?",
+        label: "1.2. Interesuje Cię zakup, najem czy oba warianty?",
         type: "multi",
         options: ["kupno", "najem"],
       },
@@ -1071,16 +1086,23 @@ elements.prevStep.addEventListener("click", () => {
 });
 
 elements.nextStep.addEventListener("click", () => {
-  if (currentStep < sections.length - 1) {
+  const visibleSections = getVisibleSections();
+  if (currentStep < visibleSections.length - 1) {
     currentStep += 1;
   }
   renderStep();
 });
 
+function getVisibleSections() {
+  return sections.filter((section) => !section.visible || section.visible(state));
+}
+
 function renderTabs() {
   elements.stepTabs.innerHTML = "";
 
-  sections.forEach((section, index) => {
+  const visibleSections = getVisibleSections();
+
+  visibleSections.forEach((section, index) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "step-tab";
@@ -1107,12 +1129,14 @@ function renderStep() {
     return;
   }
 
-  const section = sections[currentStep];
+  const visibleSections = getVisibleSections();
+  currentStep = Math.min(currentStep, Math.max(visibleSections.length - 1, 0));
+  const section = visibleSections[currentStep];
   elements.sectionTitle.textContent = section.title;
-  elements.stepCounter.textContent = `Etap ${currentStep + 1} / ${sections.length}`;
+  elements.stepCounter.textContent = `Etap ${currentStep + 1} / ${visibleSections.length}`;
   elements.prevStep.disabled = currentStep === 0;
   elements.nextStep.textContent =
-    currentStep === sections.length - 1 ? "Dalej" : "Dalej";
+    currentStep === visibleSections.length - 1 ? "Dalej" : "Dalej";
 
   renderTabs();
 
