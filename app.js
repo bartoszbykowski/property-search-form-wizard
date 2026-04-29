@@ -460,7 +460,7 @@ const sections = [
   {
     id: "section-1-mode",
     short: "Tryb",
-    title: "Tryb poszukiwania",
+    title: "Zakup czy najem",
     fields: [
       {
         id: "mode",
