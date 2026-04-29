@@ -1249,6 +1249,10 @@ function renderField(field) {
 function renderChoiceField(field, multiple) {
   const container = document.createElement("div");
   container.className = "choice-grid";
+  const isPurposeField = field.id === "purpose" && !multiple;
+  if (isPurposeField) {
+    container.classList.add("choice-grid--purpose");
+  }
   const values = multiple ? state[field.id] || [] : state[field.id];
 
   if (!field.options.length) {
@@ -1262,11 +1266,17 @@ function renderChoiceField(field, multiple) {
   field.options.forEach((option, index) => {
     const item = document.createElement("div");
     item.className = "choice-card";
+    if (isPurposeField) {
+      item.classList.add("choice-card--purpose");
+    }
     const input = document.createElement("input");
     input.type = multiple ? "checkbox" : "radio";
     input.name = field.id;
     input.id = `${field.id}-${index}`;
     input.checked = multiple ? values.includes(option) : values === option;
+    if (isPurposeField) {
+      input.classList.add("choice-input--hidden");
+    }
     const commitChoice = () => {
       if (multiple) {
         const next = new Set(state[field.id] || []);
@@ -1291,7 +1301,21 @@ function renderChoiceField(field, multiple) {
 
     const label = document.createElement("label");
     label.htmlFor = input.id;
-    label.textContent = option;
+    if (isPurposeField) {
+      label.className = "purpose-card-label";
+
+      const media = document.createElement("div");
+      media.className = "purpose-card-media";
+      media.textContent = "placeholder";
+
+      const title = document.createElement("span");
+      title.className = "purpose-card-title";
+      title.textContent = option;
+
+      label.append(media, title);
+    } else {
+      label.textContent = option;
+    }
 
     item.append(input, label);
     container.appendChild(item);

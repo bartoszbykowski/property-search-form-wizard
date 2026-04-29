@@ -80,6 +80,21 @@ body {
   gap: var(--space-2);
 }
 
+.choice-grid--purpose {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.choice-grid--purpose::-webkit-scrollbar {
+  display: none;
+}
+
 .count-slider-field {
   max-width: 640px;
 }
@@ -261,12 +276,74 @@ body {
   margin-bottom: var(--space-2);
 }
 
+.choice-card--purpose {
+  flex: 0 0 calc((100% - (2 * var(--space-3))) / 3);
+  min-width: 220px;
+  margin-bottom: 0;
+}
+
+.choice-input--hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .choice-card label,
 .matrix-cell label,
 .progressive-item label,
 .cell-button {
   display: inline-block;
   padding: 6px 0;
+}
+
+.purpose-card-label {
+  display: flex !important;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) !important;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.purpose-card-label:hover {
+  transform: translateY(-1px);
+}
+
+.purpose-card-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(11, 87, 208, 0.08), rgba(11, 87, 208, 0.18)),
+    var(--panel-alt);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.purpose-card-title {
+  display: block;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.choice-input--hidden:checked + .purpose-card-label {
+  border-color: var(--link);
+  box-shadow: inset 0 0 0 1px var(--link);
 }
 
 .matrix-header {
@@ -492,6 +569,10 @@ h2 {
   .count-slider-value {
     width: 100%;
     min-width: 0;
+  }
+
+  .choice-card--purpose {
+    flex-basis: min(78vw, 260px);
   }
 
   .step-tab {
