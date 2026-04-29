@@ -100,13 +100,16 @@ body {
 }
 
 .count-slider-value {
-  display: inline-block;
-  min-width: 160px;
-  margin-bottom: var(--space-2);
-  padding: 10px 12px;
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  min-width: 86px;
+  padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--panel-alt);
+  text-align: center;
+  pointer-events: none;
 }
 
 .count-slider-value span,
@@ -120,12 +123,14 @@ body {
 }
 
 .count-slider-value strong {
-  font-size: 24px;
+  font-size: 28px;
   line-height: 1.1;
 }
 
 .count-slider-wrap {
   width: 100%;
+  position: relative;
+  padding-top: 72px;
 }
 
 .count-slider-input {
@@ -139,7 +144,7 @@ body {
   display: grid;
   grid-template-columns: repeat(11, minmax(0, 1fr));
   gap: 0;
-  margin-top: 6px;
+  margin-top: 14px;
   font-size: 12px;
   color: var(--muted);
 }
@@ -193,9 +198,22 @@ body {
   width: 100%;
   max-width: 640px;
   height: 48px;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   touch-action: none;
   user-select: none;
+}
+
+.budget-slider-ticks {
+  display: grid;
+  gap: 0;
+  max-width: 640px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.budget-slider-ticks span {
+  text-align: center;
 }
 
 .budget-slider-base {

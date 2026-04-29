@@ -448,7 +448,7 @@ const sections = [
       },
       {
         id: "children",
-        label: "1.4. Ile dzieci będzie mieszkać lub korzystać z tej nieruchomości?",
+        label: "1.4. Ile dzieci będzie mieszkać w tej nieruchomości?",
         type: "count-slider",
         min: 0,
         max: 10,
@@ -1620,12 +1620,12 @@ function renderCountSliderField(field) {
   const currentValue =
     typeof state[field.id] === "number" ? state[field.id] : (field.min ?? 0);
 
-  const valueBox = document.createElement("div");
-  valueBox.className = "count-slider-value";
-  valueBox.innerHTML = `<span>Wybrana liczba</span><strong>${currentValue}</strong>`;
-
   const sliderWrap = document.createElement("div");
   sliderWrap.className = "count-slider-wrap";
+
+  const bubble = document.createElement("div");
+  bubble.className = "count-slider-value";
+  bubble.innerHTML = `<span>Wybrana liczba</span><strong>${currentValue}</strong>`;
 
   const slider = document.createElement("input");
   slider.type = "range";
@@ -1635,10 +1635,19 @@ function renderCountSliderField(field) {
   slider.step = field.step ?? 1;
   slider.value = currentValue;
 
+  const updateBubble = () => {
+    const min = Number(slider.min);
+    const max = Number(slider.max);
+    const value = Number(slider.value);
+    const percent = ((value - min) / (max - min || 1)) * 100;
+    bubble.style.left = `${percent}%`;
+    bubble.querySelector("strong").textContent = String(value);
+  };
+
   slider.addEventListener("input", () => {
     state[field.id] = Number(slider.value);
     persistState();
-    renderStep();
+    updateBubble();
   });
 
   const ticks = document.createElement("div");
@@ -1654,8 +1663,9 @@ function renderCountSliderField(field) {
     ticks.appendChild(tick);
   });
 
-  sliderWrap.append(slider, ticks);
-  container.append(valueBox, sliderWrap);
+  updateBubble();
+  sliderWrap.append(bubble, slider, ticks);
+  container.append(sliderWrap);
   return container;
 }
 
@@ -1747,6 +1757,9 @@ function renderBudgetRangeField(field) {
   maxHandle.className = "budget-handle";
   maxHandle.setAttribute("aria-label", "Maksymalny budżet");
 
+  const ticks = document.createElement("div");
+  ticks.className = "budget-slider-ticks";
+
   const rangeMin = Number(field.min ?? 0);
   const rangeMax = Number(field.max ?? 1000000);
   const step = Number(field.step ?? 10000);
@@ -1755,6 +1768,17 @@ function renderBudgetRangeField(field) {
   const clampToStep = (rawValue) => {
     const stepped = Math.round(rawValue / step) * step;
     return Math.min(rangeMax, Math.max(rangeMin, stepped));
+  };
+
+  const formatBudgetTick = (value) => {
+    if (value >= 1000000) {
+      const millions = value / 1000000;
+      return Number.isInteger(millions) ? `${millions} mln` : `${millions.toFixed(1)} mln`;
+    }
+    if (value >= 1000) {
+      return `${Math.round(value / 1000)} tys.`;
+    }
+    return String(value);
   };
 
   const getCurrentRange = () => ({
@@ -1790,6 +1814,16 @@ function renderBudgetRangeField(field) {
       applyBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
     }
   };
+
+  const tickValues = [rangeMin, 1000000, 2000000, 3000000, 4000000, rangeMax].filter(
+    (value, index, array) => array.indexOf(value) === index && value >= rangeMin && value <= rangeMax,
+  );
+  ticks.style.gridTemplateColumns = `repeat(${tickValues.length}, minmax(0, 1fr))`;
+  tickValues.forEach((value) => {
+    const tick = document.createElement("span");
+    tick.textContent = formatBudgetTick(value);
+    ticks.appendChild(tick);
+  });
 
   const bindHandleDrag = (handle, edge) => {
     handle.addEventListener("pointerdown", (event) => {
@@ -1835,7 +1869,7 @@ function renderBudgetRangeField(field) {
 
   sliderGroup.append(baseTrack, activeTrack, minHandle, maxHandle);
   updateTrack();
-  container.append(valuesRow, sliderGroup);
+  container.append(valuesRow, sliderGroup, ticks);
   return container;
 }
 
