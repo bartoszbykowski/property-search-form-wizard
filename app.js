@@ -993,6 +993,7 @@ const sections = [
         step: 10000,
         minLabel: "Od",
         maxLabel: "Do",
+        visible: (state) => includesPurchaseMode(state),
       },
       {
         id: "purchaseBudget",
@@ -1000,6 +1001,7 @@ const sections = [
         type: "number",
         min: 0,
         step: 10000,
+        visible: (state) => includesPurchaseMode(state),
       },
       {
         id: "renovationBudget",
@@ -1010,8 +1012,16 @@ const sections = [
         visible: (state) => showRenovationBudget(state),
       },
       {
+        id: "rentBudget",
+        label: "2.4. Jaki miesięczny budżet na najem bierzesz pod uwagę?",
+        type: "number",
+        min: 0,
+        step: 100,
+        visible: (state) => includesRentMode(state),
+      },
+      {
         id: "renovationFlex",
-        label: "2.4. Czy budżet na remont / wykończenie jest elastyczny?",
+        label: "2.5. Czy budżet na remont / wykończenie jest elastyczny?",
         type: "single",
         options: [
           "nie, to twardy limit",
@@ -1023,7 +1033,7 @@ const sections = [
       },
       {
         id: "financing",
-        label: "2.5. Jak planujesz sfinansować zakup?",
+        label: "2.6. Jak planujesz sfinansować zakup?",
         type: "single",
         options: [
           "gotówka",
@@ -1036,7 +1046,7 @@ const sections = [
       },
       {
         id: "timeline",
-        label: "2.6. Kiedy chcesz kupić lub wynająć nieruchomość?",
+        label: "2.7. Kiedy chcesz kupić lub wynająć nieruchomość?",
         type: "single",
         options: [
           "jak najszybciej",
@@ -1582,6 +1592,8 @@ function renderNumberField(field) {
         ? "Liczba dzieci"
         : field.id === "purchaseBudget" || field.id === "renovationBudget"
           ? "Kwota w zł"
+          : field.id === "rentBudget"
+            ? "Kwota miesięczna w zł"
         : "Podaj kwotę lub liczbę";
   group.innerHTML = `<label for="${field.id}">${numberLabel}</label>`;
 
@@ -2025,12 +2037,16 @@ function styleMatters(currentState) {
   ].includes(currentState.styleImportance);
 }
 
+function includesPurchaseMode(currentState) {
+  return (currentState.mode || []).includes("kupno");
+}
+
+function includesRentMode(currentState) {
+  return (currentState.mode || []).includes("najem");
+}
+
 function showRenovationBudget(currentState) {
-  const works = currentState.maxWorks;
-  const primary = currentState.primaryCondition || [];
-  return works && works !== "A0"
-    ? true
-    : Array.isArray(primary) && primary.includes("stan deweloperski");
+  return includesPurchaseMode(currentState);
 }
 
 function getDistrictOptions(currentState = state) {
@@ -2085,6 +2101,15 @@ function normalizeState() {
     delete state.renovationFlex;
   }
 
+  if (!includesPurchaseMode(state)) {
+    delete state.totalBudget;
+    delete state.purchaseBudget;
+  }
+
+  if (!includesRentMode(state)) {
+    delete state.rentBudget;
+  }
+
   if (!["łazienka + osobne WC", "łazienka + osobne WC z prysznicem"].includes(state.bathroomLayout)) {
     delete state.wcFeatures;
   }
@@ -2093,7 +2118,7 @@ function normalizeState() {
     delete state.parkingType;
   }
 
-  if (!(state.mode || []).includes("kupno")) {
+  if (!includesPurchaseMode(state)) {
     delete state.financing;
   }
 
