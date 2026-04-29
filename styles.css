@@ -327,8 +327,49 @@ body {
 }
 
 .step-tab {
-  margin-right: var(--space-1);
-  margin-bottom: var(--space-1);
+  flex: 0 0 220px;
+  min-height: 72px;
+  text-align: left;
+  white-space: normal;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 0;
+}
+
+.step-tab strong,
+.step-tab span {
+  display: block;
+}
+
+.step-tab strong {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.step-tab span {
+  line-height: 1.35;
+}
+
+.step-tab.is-active {
+  border-color: var(--link);
+  box-shadow: inset 0 0 0 1px var(--link);
+}
+
+.step-tabs {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.step-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .summary-list,
@@ -451,6 +492,11 @@ h2 {
   .count-slider-value {
     width: 100%;
     min-width: 0;
+  }
+
+  .step-tab {
+    flex-basis: 184px;
+    min-height: 80px;
   }
 }
 

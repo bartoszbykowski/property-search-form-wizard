@@ -1111,6 +1111,7 @@ function renderTabs() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "step-tab";
+    button.dataset.stepIndex = String(index);
     if (index === currentStep) {
       button.classList.add("is-active");
     }
@@ -1120,6 +1121,23 @@ function renderTabs() {
       renderStep();
     });
     elements.stepTabs.appendChild(button);
+  });
+
+  syncStepTabsScroll();
+}
+
+function syncStepTabsScroll() {
+  const activeTab = elements.stepTabs.querySelector(".step-tab.is-active");
+  if (!activeTab) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    const targetLeft = Math.max(activeTab.offsetLeft - elements.stepTabs.offsetLeft, 0);
+    elements.stepTabs.scrollTo({
+      left: targetLeft,
+      behavior: "smooth",
+    });
   });
 }
 
