@@ -1701,15 +1701,23 @@ function renderBudgetRangeField(field) {
   let minValueInput;
   let maxValueInput;
 
+  const formatBudgetInputValue = (value) =>
+    new Intl.NumberFormat("pl-PL").format(Number(value || 0)).replace(/\u00A0/g, " ");
+
+  const parseBudgetInputValue = (rawValue) => {
+    const digitsOnly = String(rawValue || "").replace(/[^\d]/g, "");
+    return digitsOnly ? Number(digitsOnly) : null;
+  };
+
   const applyBudgetState = (nextMin, nextMax, rerender = false) => {
     const boundedMin = Math.max(field.min ?? 0, Math.min(nextMin, nextMax));
     const boundedMax = Math.min(field.max ?? 1000000, Math.max(nextMin, nextMax));
     state[field.id] = { min: boundedMin, max: boundedMax };
     if (minValueInput) {
-      minValueInput.value = String(boundedMin);
+      minValueInput.value = formatBudgetInputValue(boundedMin);
     }
     if (maxValueInput) {
-      maxValueInput.value = String(boundedMax);
+      maxValueInput.value = formatBudgetInputValue(boundedMax);
     }
     updateTrack();
     persistState();
@@ -1726,18 +1734,28 @@ function renderBudgetRangeField(field) {
     caption.textContent = label;
 
     const input = document.createElement("input");
-    input.type = "number";
+    input.type = "text";
+    input.inputMode = "numeric";
     input.className = "budget-value-input";
-    input.min = field.min ?? 0;
-    input.max = field.max ?? 1000000;
-    input.step = field.step ?? 10000;
-    input.value = current[key] ?? "";
+    input.autocomplete = "off";
+    input.value = formatBudgetInputValue(current[key] ?? 0);
     input.addEventListener("input", () => {
+      const parsedValue = parseBudgetInputValue(input.value);
+      if (parsedValue === null) {
+        input.value = "";
+        return;
+      }
+
       const next = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
-      next[key] = input.value === "" ? "" : Number(input.value);
+      next[key] = parsedValue;
       const safeMin = Number(next.min || field.min || 0);
       const safeMax = Number(next.max || field.max || 1000000);
+      input.value = formatBudgetInputValue(parsedValue);
       applyBudgetState(safeMin, safeMax);
+    });
+    input.addEventListener("blur", () => {
+      const currentRange = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
+      input.value = formatBudgetInputValue(currentRange[key] ?? 0);
     });
 
     if (key === "min") {
@@ -1836,9 +1854,15 @@ function renderBudgetRangeField(field) {
     (value, index, array) => array.indexOf(value) === index && value >= rangeMin && value <= rangeMax,
   );
   ticks.style.gridTemplateColumns = `repeat(${tickValues.length}, minmax(0, 1fr))`;
-  tickValues.forEach((value) => {
+  tickValues.forEach((value, index) => {
     const tick = document.createElement("span");
     tick.textContent = formatBudgetTick(value);
+    if (index === 0) {
+      tick.classList.add("budget-tick-start");
+    }
+    if (index === tickValues.length - 1) {
+      tick.classList.add("budget-tick-end");
+    }
     ticks.appendChild(tick);
   });
 

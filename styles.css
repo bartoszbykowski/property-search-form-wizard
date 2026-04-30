@@ -217,6 +217,14 @@ body {
   text-align: center;
 }
 
+.budget-slider-ticks .budget-tick-start {
+  text-align: left;
+}
+
+.budget-slider-ticks .budget-tick-end {
+  text-align: right;
+}
+
 .budget-slider-base {
   position: absolute;
   left: 0;
