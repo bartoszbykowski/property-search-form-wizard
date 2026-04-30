@@ -1096,6 +1096,10 @@ elements.prevStep.addEventListener("click", () => {
 });
 
 elements.nextStep.addEventListener("click", () => {
+  advanceStep();
+});
+
+function advanceStep() {
   const visibleSections = getVisibleSections();
   const currentSection = visibleSections[currentStep];
   if (currentSection?.id === "section-1" && !state.purpose) {
@@ -1106,7 +1110,7 @@ elements.nextStep.addEventListener("click", () => {
     currentStep += 1;
   }
   renderStep();
-});
+}
 
 function getVisibleSections() {
   return sections.filter((section) => !section.visible || section.visible(state));
@@ -1323,6 +1327,19 @@ function renderChoiceField(field, multiple) {
       title.textContent = option;
 
       label.append(media, title);
+      label.addEventListener("dblclick", () => {
+        state[field.id] = option;
+        normalizeState();
+        persistState();
+
+        const visibleSections = getVisibleSections();
+        const currentSection = visibleSections[currentStep];
+        if (currentSection?.id === "section-1") {
+          advanceStep();
+        } else {
+          renderStep();
+        }
+      });
     } else {
       label.textContent = option;
     }
