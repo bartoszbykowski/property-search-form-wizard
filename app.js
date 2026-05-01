@@ -633,48 +633,31 @@ const sections = [
     title: "Metraż i pokoje",
     fields: [
       {
-        id: "area",
-        label: "5.1. Jakiej powierzchni szukasz?",
-        description: "Wprowadź przedział w m². Krok rekomendowany: 5 m².",
-        type: "range",
-        minLabel: "Od",
-        maxLabel: "Do",
-        min: 0,
-        step: 5,
-      },
-      {
         id: "rooms",
-        label: "5.2. Ile pokoi bierzesz pod uwagę?",
+        label: "5.1. Ile pokoi bierzesz pod uwagę?",
         type: "range",
         minLabel: "Od",
         maxLabel: "Do",
         min: 0,
+        max: 10,
         step: 1,
+        ticks: [0, 2, 4, 6, 8, 10],
       },
-    ],
-  },
-  {
-    id: "section-5",
-    short: "Układ",
-    title: "Układ i przechowywanie",
-    fields: [
       {
-        id: "storageNeeds",
-        label: "6.1. Jakie miejsca do przechowywania są dla Ciebie ważne?",
-        type: "matrix",
-        columns: ["konieczne", "preferuję", "bez znaczenia"],
-        rows: [
-          "garderoba",
-          "szafa w zabudowie",
-          "piwnica",
-          "komórka lokatorska",
-          "pomieszczenie gospodarcze",
-          "zabudowa w przedpokoju",
-        ],
+        id: "area",
+        label: "5.2. Jakiej powierzchni szukasz?",
+        description: "Wprowadź przedział w m².",
+        type: "range",
+        minLabel: "Od",
+        maxLabel: "Do",
+        min: 0,
+        max: 500,
+        step: 5,
+        ticks: [0, 100, 200, 300, 400, 500],
       },
       {
         id: "workSpace",
-        label: "6.2. Czy potrzebujesz miejsca do pracy w domu?",
+        label: "5.3. Czy potrzebujesz miejsca do pracy w domu?",
         type: "single",
         options: [
           "tak, osobny pokój do pracy",
@@ -683,9 +666,16 @@ const sections = [
           "bez znaczenia",
         ],
       },
+    ],
+  },
+  {
+    id: "section-5",
+    short: "Układ",
+    title: "Układ",
+    fields: [
       {
         id: "layoutChanges",
-        label: "6.3. Czy dopuszczasz zmiany w układzie?",
+        label: "6.1. Czy dopuszczasz zmiany w układzie?",
         type: "single",
         options: [
           "nie, układ musi być dobry od razu",
@@ -1922,92 +1912,51 @@ function renderCountSliderField(field) {
   return container;
 }
 
-function renderBudgetRangeField(field) {
+function renderDualSliderField(field, options = {}) {
   const container = document.createElement("div");
   container.className = "budget-range-field";
 
-  const current = state[field.id] || {
-    min: field.min ?? 0,
-    max: field.max ?? 1000000,
+  const rangeMin = Number(field.min ?? 0);
+  const rangeMax = Number(field.max ?? 100);
+  const step = Number(field.step ?? 1);
+  const defaultRange = {
+    min: field.defaultMin ?? rangeMin,
+    max: field.defaultMax ?? rangeMax,
   };
-
+  const current = state[field.id] || defaultRange;
   const valuesRow = document.createElement("div");
   valuesRow.className = "budget-values-row";
 
   let minValueInput;
   let maxValueInput;
+  let ignoreTrackClickUntil = 0;
 
-  const formatBudgetInputValue = (value) =>
-    new Intl.NumberFormat("pl-PL").format(Number(value || 0)).replace(/\u00A0/g, " ");
+  const formatInputValue =
+    options.formatInputValue ||
+    ((value) =>
+      new Intl.NumberFormat("pl-PL").format(Number(value || 0)).replace(/\u00A0/g, " "));
 
-  const parseBudgetInputValue = (rawValue) => {
-    const digitsOnly = String(rawValue || "").replace(/[^\d]/g, "");
-    return digitsOnly ? Number(digitsOnly) : null;
-  };
-
-  const applyBudgetState = (nextMin, nextMax, rerender = false) => {
-    const boundedMin = Math.max(field.min ?? 0, Math.min(nextMin, nextMax));
-    const boundedMax = Math.min(field.max ?? 1000000, Math.max(nextMin, nextMax));
-    state[field.id] = { min: boundedMin, max: boundedMax };
-    if (minValueInput) {
-      minValueInput.value = formatBudgetInputValue(boundedMin);
-    }
-    if (maxValueInput) {
-      maxValueInput.value = formatBudgetInputValue(boundedMax);
-    }
-    updateTrack();
-    persistState();
-    if (rerender) {
-      renderStep();
-    }
-  };
-
-  const buildBudgetInput = (key, label) => {
-    const box = document.createElement("label");
-    box.className = "budget-value-box";
-
-    const caption = document.createElement("span");
-    caption.textContent = label;
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.inputMode = "numeric";
-    input.className = "budget-value-input";
-    input.autocomplete = "off";
-    input.value = formatBudgetInputValue(current[key] ?? 0);
-    input.addEventListener("input", () => {
-      const parsedValue = parseBudgetInputValue(input.value);
-      if (parsedValue === null) {
-        input.value = "";
-        return;
-      }
-
-      const next = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
-      next[key] = parsedValue;
-      const safeMin = Number(next.min || field.min || 0);
-      const safeMax = Number(next.max || field.max || 1000000);
-      input.value = formatBudgetInputValue(parsedValue);
-      applyBudgetState(safeMin, safeMax);
-    });
-    input.addEventListener("blur", () => {
-      const currentRange = state[field.id] || { min: field.min ?? 0, max: field.max ?? 1000000 };
-      input.value = formatBudgetInputValue(currentRange[key] ?? 0);
+  const parseInputValue =
+    options.parseInputValue ||
+    ((rawValue) => {
+      const digitsOnly = String(rawValue || "").replace(/[^\d]/g, "");
+      return digitsOnly ? Number(digitsOnly) : null;
     });
 
-    if (key === "min") {
-      minValueInput = input;
-    } else {
-      maxValueInput = input;
-    }
-
-    box.append(caption, input);
-    return box;
-  };
-
-  valuesRow.append(
-    buildBudgetInput("min", field.minLabel || "Od"),
-    buildBudgetInput("max", field.maxLabel || "Do"),
+  const formatTick = options.formatTick || ((value) => String(value));
+  const tickValues = (options.tickValues || field.ticks || [rangeMin, rangeMax]).filter(
+    (value, index, array) => array.indexOf(value) === index && value >= rangeMin && value <= rangeMax,
   );
+
+  const clampToStep = (rawValue) => {
+    const stepped = Math.round(rawValue / step) * step;
+    return Math.min(rangeMax, Math.max(rangeMin, stepped));
+  };
+
+  const getCurrentRange = () => ({
+    min: Number((state[field.id] || {}).min ?? current.min ?? rangeMin),
+    max: Number((state[field.id] || {}).max ?? current.max ?? rangeMax),
+  });
 
   const sliderGroup = document.createElement("div");
   sliderGroup.className = "budget-slider-group";
@@ -2021,41 +1970,15 @@ function renderBudgetRangeField(field) {
   const minHandle = document.createElement("button");
   minHandle.type = "button";
   minHandle.className = "budget-handle";
-  minHandle.setAttribute("aria-label", "Minimalny budżet");
+  minHandle.setAttribute("aria-label", options.minHandleLabel || "Wartość minimalna");
 
   const maxHandle = document.createElement("button");
   maxHandle.type = "button";
   maxHandle.className = "budget-handle";
-  maxHandle.setAttribute("aria-label", "Maksymalny budżet");
+  maxHandle.setAttribute("aria-label", options.maxHandleLabel || "Wartość maksymalna");
 
   const ticks = document.createElement("div");
   ticks.className = "budget-slider-ticks";
-
-  const rangeMin = Number(field.min ?? 0);
-  const rangeMax = Number(field.max ?? 1000000);
-  const step = Number(field.step ?? 10000);
-  let ignoreTrackClickUntil = 0;
-
-  const clampToStep = (rawValue) => {
-    const stepped = Math.round(rawValue / step) * step;
-    return Math.min(rangeMax, Math.max(rangeMin, stepped));
-  };
-
-  const formatBudgetTick = (value) => {
-    if (value >= 1000000) {
-      const millions = value / 1000000;
-      return Number.isInteger(millions) ? `${millions} mln` : `${millions.toFixed(1)} mln`;
-    }
-    if (value >= 1000) {
-      return `${Math.round(value / 1000)} tys.`;
-    }
-    return String(value);
-  };
-
-  const getCurrentRange = () => ({
-    min: Number((state[field.id] || {}).min ?? current.min ?? rangeMin),
-    max: Number((state[field.id] || {}).max ?? current.max ?? rangeMax),
-  });
 
   const updateTrack = () => {
     const { min, max } = getCurrentRange();
@@ -2065,6 +1988,63 @@ function renderBudgetRangeField(field) {
     activeTrack.style.width = `${Math.max(end - start, 0)}%`;
     minHandle.style.left = `${start}%`;
     maxHandle.style.left = `${end}%`;
+  };
+
+  const applyState = (nextMin, nextMax, rerender = false) => {
+    const boundedMin = Math.max(rangeMin, Math.min(nextMin, nextMax));
+    const boundedMax = Math.min(rangeMax, Math.max(nextMin, nextMax));
+    state[field.id] = { min: boundedMin, max: boundedMax };
+    if (minValueInput) {
+      minValueInput.value = formatInputValue(boundedMin);
+    }
+    if (maxValueInput) {
+      maxValueInput.value = formatInputValue(boundedMax);
+    }
+    updateTrack();
+    persistState();
+    if (rerender) {
+      renderStep();
+    }
+  };
+
+  const buildValueInput = (key, label) => {
+    const box = document.createElement("label");
+    box.className = "budget-value-box";
+
+    const caption = document.createElement("span");
+    caption.textContent = label;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.inputMode = "numeric";
+    input.className = "budget-value-input";
+    input.autocomplete = "off";
+    input.value = formatInputValue(current[key] ?? defaultRange[key]);
+    input.addEventListener("input", () => {
+      const parsedValue = parseInputValue(input.value);
+      if (parsedValue === null) {
+        input.value = "";
+        return;
+      }
+
+      const next = state[field.id] || { ...defaultRange };
+      next[key] = parsedValue;
+      input.value = formatInputValue(parsedValue);
+      applyState(Number(next.min ?? rangeMin), Number(next.max ?? rangeMax));
+    });
+    input.addEventListener("blur", () => {
+      const currentRange = state[field.id] || defaultRange;
+      input.value = formatInputValue(currentRange[key] ?? defaultRange[key]);
+    });
+
+    if (key === "min") {
+      minValueInput = input;
+    } else {
+      maxValueInput = input;
+    }
+
+    box.append(caption, input);
+    return box;
   };
 
   const getValueFromClientX = (clientX) => {
@@ -2080,27 +2060,11 @@ function renderBudgetRangeField(field) {
       Math.abs(nextValue - currentRange.min) <= Math.abs(nextValue - currentRange.max);
 
     if (moveMin) {
-      applyBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
+      applyState(Math.min(nextValue, currentRange.max), currentRange.max);
     } else {
-      applyBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
+      applyState(currentRange.min, Math.max(nextValue, currentRange.min));
     }
   };
-
-  const tickValues = [rangeMin, 1000000, 2000000, 3000000, 4000000, rangeMax].filter(
-    (value, index, array) => array.indexOf(value) === index && value >= rangeMin && value <= rangeMax,
-  );
-  ticks.style.gridTemplateColumns = `repeat(${tickValues.length}, minmax(0, 1fr))`;
-  tickValues.forEach((value, index) => {
-    const tick = document.createElement("span");
-    tick.textContent = formatBudgetTick(value);
-    if (index === 0) {
-      tick.classList.add("budget-tick-start");
-    }
-    if (index === tickValues.length - 1) {
-      tick.classList.add("budget-tick-end");
-    }
-    ticks.appendChild(tick);
-  });
 
   const bindHandleDrag = (handle, edge) => {
     handle.addEventListener("pointerdown", (event) => {
@@ -2112,9 +2076,9 @@ function renderBudgetRangeField(field) {
         const currentRange = getCurrentRange();
 
         if (edge === "min") {
-          applyBudgetState(Math.min(nextValue, currentRange.max), currentRange.max);
+          applyState(Math.min(nextValue, currentRange.max), currentRange.max);
         } else {
-          applyBudgetState(currentRange.min, Math.max(nextValue, currentRange.min));
+          applyState(currentRange.min, Math.max(nextValue, currentRange.min));
         }
       };
 
@@ -2130,6 +2094,24 @@ function renderBudgetRangeField(field) {
       window.addEventListener("pointercancel", onEnd);
     });
   };
+
+  valuesRow.append(
+    buildValueInput("min", field.minLabel || "Od"),
+    buildValueInput("max", field.maxLabel || "Do"),
+  );
+
+  ticks.style.gridTemplateColumns = `repeat(${tickValues.length}, minmax(0, 1fr))`;
+  tickValues.forEach((value, index) => {
+    const tick = document.createElement("span");
+    tick.textContent = formatTick(value);
+    if (index === 0) {
+      tick.classList.add("budget-tick-start");
+    }
+    if (index === tickValues.length - 1) {
+      tick.classList.add("budget-tick-end");
+    }
+    ticks.appendChild(tick);
+  });
 
   bindHandleDrag(minHandle, "min");
   bindHandleDrag(maxHandle, "max");
@@ -2150,34 +2132,35 @@ function renderBudgetRangeField(field) {
   return container;
 }
 
-function renderRangeField(field) {
-  const container = document.createElement("div");
-  container.className = "range-grid";
-  const current = state[field.id] || { min: "", max: "" };
+function renderBudgetRangeField(field) {
+  const formatBudgetTick = (value) => {
+    if (value >= 1000000) {
+      const millions = value / 1000000;
+      return Number.isInteger(millions) ? `${millions} mln` : `${millions.toFixed(1)} mln`;
+    }
+    if (value >= 1000) {
+      return `${Math.round(value / 1000)} tys.`;
+    }
+    return String(value);
+  };
 
-  [["min", field.minLabel], ["max", field.maxLabel]].forEach(([key, labelText]) => {
-    const group = document.createElement("div");
-    group.className = "input-group";
-    group.innerHTML = `<label for="${field.id}-${key}">${labelText || (key === "min" ? "Minimum" : "Maksimum")}</label>`;
-
-    const input = document.createElement("input");
-    input.type = "number";
-    input.id = `${field.id}-${key}`;
-    input.min = field.min ?? 0;
-    input.step = field.step ?? 1;
-    input.value = current[key] ?? "";
-    input.addEventListener("input", () => {
-      const next = state[field.id] || { min: "", max: "" };
-      next[key] = input.value === "" ? "" : Number(input.value);
-      state[field.id] = next;
-      persistState();
-    });
-
-    group.appendChild(input);
-    container.appendChild(group);
+  return renderDualSliderField(field, {
+    minHandleLabel: "Minimalny budżet",
+    maxHandleLabel: "Maksymalny budżet",
+    tickValues:
+      field.ticks ||
+      [field.min ?? 0, 1000000, 2000000, 3000000, 4000000, field.max ?? 5000000],
+    formatTick: formatBudgetTick,
   });
+}
 
-  return container;
+function renderRangeField(field) {
+  return renderDualSliderField(field, {
+    minHandleLabel: `${field.label} od`,
+    maxHandleLabel: `${field.label} do`,
+    tickValues: field.ticks,
+    formatTick: (value) => String(value),
+  });
 }
 
 function renderMatrixField(field) {
