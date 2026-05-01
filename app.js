@@ -630,18 +630,12 @@ const sections = [
   {
     id: "section-4",
     short: "Metraż",
-    title: "Metraż i pokoje",
+    title: "Metraż i pomieszczenia",
     fields: [
       {
-        id: "rooms",
-        label: "5.1. Ile pokoi bierzesz pod uwagę?",
-        type: "range",
-        minLabel: "Od",
-        maxLabel: "Do",
-        min: 0,
-        max: 10,
-        step: 1,
-        ticks: [0, 2, 4, 6, 8, 10],
+        id: "roomNeeds",
+        label: "5.1. Jakich pomieszczeń potrzebujesz?",
+        type: "room-needs",
       },
       {
         id: "area",
@@ -654,17 +648,6 @@ const sections = [
         max: 500,
         step: 5,
         ticks: [0, 100, 200, 300, 400, 500],
-      },
-      {
-        id: "workSpace",
-        label: "5.3. Czy potrzebujesz miejsca do pracy w domu?",
-        type: "single",
-        options: [
-          "tak, osobny pokój do pracy",
-          "tak, wystarczy wydzielone miejsce w pokoju",
-          "nie",
-          "bez znaczenia",
-        ],
       },
     ],
   },
@@ -1260,6 +1243,9 @@ function renderField(field) {
       break;
     case "count-slider":
       control = renderCountSliderField(field);
+      break;
+    case "room-needs":
+      control = renderRoomNeedsField(field);
       break;
     case "budget-range":
       control = renderBudgetRangeField(field);
@@ -1903,6 +1889,102 @@ function renderCountSliderField(field) {
   return container;
 }
 
+function renderRoomNeedsField(field) {
+  const container = document.createElement("div");
+  container.className = "room-needs-field";
+
+  const rows = [
+    { key: "adultBedroom", label: "sypialnia dorosłych" },
+    {
+      key: "childRoom",
+      label: "pokój dzieci",
+      visible: () => Number(state.children || 0) > 0,
+      hasCount: true,
+    },
+    { key: "guestRoom", label: "pokój gościnny" },
+    { key: "diningRoom", label: "jadalnia" },
+    { key: "livingRoom", label: "pokój dzienny" },
+    { key: "office", label: "gabinet" },
+  ];
+
+  const roomNeeds = state[field.id] || {};
+  const childCount = Math.max(1, Number(state.children || 0));
+
+  rows
+    .filter((row) => !row.visible || row.visible())
+    .forEach((row) => {
+      const rowElement = document.createElement("div");
+      rowElement.className = "room-needs-row";
+
+      const title = document.createElement("div");
+      title.className = "room-needs-title";
+      title.textContent = row.label;
+
+      const controls = document.createElement("div");
+      controls.className = "room-needs-controls";
+
+      const toggle = document.createElement("div");
+      toggle.className = "room-needs-toggle";
+
+      ["tak", "nie"].forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "room-needs-button";
+        button.textContent = option;
+        if (roomNeeds[row.key] === option) {
+          button.classList.add("is-active");
+        }
+
+        button.addEventListener("click", () => {
+          const next = { ...(state[field.id] || {}) };
+          next[row.key] = option;
+          if (row.hasCount && option === "nie") {
+            delete next.childRoomCount;
+          }
+          state[field.id] = next;
+          normalizeState();
+          persistState();
+          renderStep();
+        });
+
+        toggle.appendChild(button);
+      });
+
+      controls.appendChild(toggle);
+
+      if (row.hasCount && roomNeeds[row.key] === "tak") {
+        const countWrap = document.createElement("label");
+        countWrap.className = "room-needs-count";
+
+        const countLabel = document.createElement("span");
+        countLabel.textContent = "Ilość";
+
+        const select = document.createElement("select");
+        for (let value = 1; value <= childCount; value += 1) {
+          const option = document.createElement("option");
+          option.value = String(value);
+          option.textContent = String(value);
+          select.appendChild(option);
+        }
+        select.value = String(roomNeeds.childRoomCount || 1);
+        select.addEventListener("change", () => {
+          const next = { ...(state[field.id] || {}) };
+          next.childRoomCount = Number(select.value);
+          state[field.id] = next;
+          persistState();
+        });
+
+        countWrap.append(countLabel, select);
+        controls.appendChild(countWrap);
+      }
+
+      rowElement.append(title, controls);
+      container.appendChild(rowElement);
+    });
+
+  return container;
+}
+
 function renderDualSliderField(field, options = {}) {
   const container = document.createElement("div");
   container.className = "budget-range-field";
@@ -2528,6 +2610,17 @@ function normalizeState() {
   if (!isVisible({ visible: (s) => s.purpose === "dla siebie / rodziny" })) {
     delete state.adults;
     delete state.children;
+  }
+
+  if (Number(state.children || 0) <= 0 && state.roomNeeds) {
+    delete state.roomNeeds.childRoom;
+    delete state.roomNeeds.childRoomCount;
+  }
+
+  if (state.roomNeeds?.childRoom === "tak" && Number(state.children || 0) > 0) {
+    const maxChildRooms = Math.max(1, Number(state.children || 0));
+    const currentChildRoomCount = Number(state.roomNeeds.childRoomCount || 1);
+    state.roomNeeds.childRoomCount = Math.min(Math.max(currentChildRoomCount, 1), maxChildRooms);
   }
 
   if (!hasApartmentSelected(state)) {
