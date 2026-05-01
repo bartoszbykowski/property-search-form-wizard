@@ -2232,14 +2232,16 @@ function renderRangeField(field) {
 function renderMatrixField(field) {
   const container = document.createElement("div");
   container.className = "matrix-table";
-  container.style.setProperty("--cols", field.columns.length);
 
   const orderedColumns = getOrderedMatrixColumns(field.columns);
+  container.style.setProperty("--cols", orderedColumns.length);
   const defaultColumn = getDefaultMatrixColumn(field.columns);
 
   const header = document.createElement("div");
   header.className = "matrix-header";
-  header.appendChild(document.createElement("span"));
+  const blank = document.createElement("span");
+  blank.className = "matrix-header-spacer";
+  header.appendChild(blank);
   orderedColumns.forEach((column) => {
     const span = document.createElement("span");
     span.textContent = column;
@@ -2270,6 +2272,7 @@ function renderMatrixField(field) {
       input.name = `${field.id}-${rowIndex}`;
       input.id = `${field.id}-${rowIndex}-${colIndex}`;
       input.checked = selectedValue === column;
+      input.setAttribute("aria-label", `${rowLabel}: ${column}`);
       input.addEventListener("change", () => {
         const next = { ...(state[field.id] || {}) };
         next[rowLabel] = column;
@@ -2281,6 +2284,7 @@ function renderMatrixField(field) {
 
       const label = document.createElement("label");
       label.htmlFor = input.id;
+      label.className = "sr-only";
       label.textContent = column;
 
       cell.append(input, label);
