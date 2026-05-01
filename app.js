@@ -1661,6 +1661,24 @@ function renderCountSliderField(field) {
   slider.step = field.step ?? 1;
   slider.value = currentValue;
 
+  const applySliderValue = (nextValue) => {
+    slider.value = String(nextValue);
+    state[field.id] = Number(nextValue);
+    persistState();
+    updateBubble();
+  };
+
+  const getValueFromClientX = (clientX) => {
+    const rect = slider.getBoundingClientRect();
+    const min = Number(slider.min);
+    const max = Number(slider.max);
+    const step = Number(slider.step) || 1;
+    const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+    const rawValue = min + ratio * (max - min);
+    const steppedValue = Math.round((rawValue - min) / step) * step + min;
+    return Math.min(max, Math.max(min, steppedValue));
+  };
+
   const updateBubble = () => {
     const min = Number(slider.min);
     const max = Number(slider.max);
@@ -1671,9 +1689,25 @@ function renderCountSliderField(field) {
   };
 
   slider.addEventListener("input", () => {
-    state[field.id] = Number(slider.value);
-    persistState();
-    updateBubble();
+    applySliderValue(Number(slider.value));
+  });
+
+  bubble.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+
+    const onMove = (moveEvent) => {
+      applySliderValue(getValueFromClientX(moveEvent.clientX));
+    };
+
+    const onEnd = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onEnd);
+      window.removeEventListener("pointercancel", onEnd);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onEnd);
+    window.addEventListener("pointercancel", onEnd);
   });
 
   const ticks = document.createElement("div");

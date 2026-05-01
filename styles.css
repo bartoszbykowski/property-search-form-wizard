@@ -110,7 +110,15 @@ body {
   border-radius: 10px;
   background: var(--panel-alt);
   text-align: center;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  z-index: 2;
+}
+
+.count-slider-value:active {
+  cursor: grabbing;
 }
 
 .count-slider-value span,
