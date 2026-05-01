@@ -1,4 +1,4 @@
-const STORAGE_KEY = "property-search-form-state-v1";
+const STORAGE_KEY = "property-search-form-state-v2";
 const KATOWICE_DISTRICTS_GEOJSON_URL =
   "https://services1.arcgis.com/BNOHq9FCYUCPx1D8/ArcGIS/rest/services/dzielnice_Katowic/FeatureServer/0/query?where=1%3D1&outFields=NAZWA&f=geojson";
 const POLISH_CITIES_DATA_URL =
