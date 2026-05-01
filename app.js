@@ -2185,10 +2185,13 @@ function renderMatrixField(field) {
   container.className = "matrix-table";
   container.style.setProperty("--cols", field.columns.length);
 
+  const orderedColumns = getOrderedMatrixColumns(field.columns);
+  const defaultColumn = getDefaultMatrixColumn(field.columns);
+
   const header = document.createElement("div");
   header.className = "matrix-header";
   header.appendChild(document.createElement("span"));
-  field.columns.forEach((column) => {
+  orderedColumns.forEach((column) => {
     const span = document.createElement("span");
     span.textContent = column;
     header.appendChild(span);
@@ -2208,14 +2211,16 @@ function renderMatrixField(field) {
     const options = document.createElement("div");
     options.className = "matrix-options";
 
-    field.columns.forEach((column, colIndex) => {
+    const selectedValue = values[rowLabel] ?? defaultColumn;
+
+    orderedColumns.forEach((column, colIndex) => {
       const cell = document.createElement("div");
       cell.className = "matrix-cell";
       const input = document.createElement("input");
       input.type = "radio";
       input.name = `${field.id}-${rowIndex}`;
       input.id = `${field.id}-${rowIndex}-${colIndex}`;
-      input.checked = values[rowLabel] === column;
+      input.checked = selectedValue === column;
       input.addEventListener("change", () => {
         const next = { ...(state[field.id] || {}) };
         next[rowLabel] = column;
@@ -2239,6 +2244,27 @@ function renderMatrixField(field) {
   });
 
   return container;
+}
+
+function getOrderedMatrixColumns(columns) {
+  if (
+    columns.length === 3 &&
+    columns.includes("preferuję") &&
+    columns.includes("dopuszczam") &&
+    columns.includes("nie chcę")
+  ) {
+    return ["nie chcę", "dopuszczam", "preferuję"];
+  }
+
+  return columns;
+}
+
+function getDefaultMatrixColumn(columns) {
+  if (columns.includes("nie chcę")) {
+    return "nie chcę";
+  }
+
+  return null;
 }
 
 function renderProgressiveField(field) {
