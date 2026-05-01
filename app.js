@@ -490,14 +490,6 @@ const sections = [
           "nie spieszy mi się",
         ],
       },
-      {
-        id: "initialRenovationProfile",
-        label: "1.6. Jaki stan nieruchomości bierzesz pod uwagę na tym etapie?",
-        description: "To tylko wstępne profilowanie: co wchodzi w grę już na starcie.",
-        type: "matrix",
-        columns: ["preferuję", "dopuszczam", "nie chcę"],
-        rows: ["na gotowo", "lekki remont", "duży remont"],
-      },
     ],
   },
   {
@@ -509,7 +501,7 @@ const sections = [
         id: "cities",
         label: "3.1. Jakie miasta lub miejscowości bierzesz pod uwagę?",
         description:
-          "Zacznij wpisywać nazwę lokalizacji. Możesz dodać kilka miast lub miejscowości, tak jak w wyszukiwarce ofert.",
+          "Zacznij wpisywać nazwę lokalizacji. Możesz dodać kilka miast lub miejscowości, a także wybrać całe województwo.",
         type: "location-search",
       },
       {
@@ -525,7 +517,7 @@ const sections = [
         id: "cityMap",
         label: "3.3. Podgląd wybranego miasta",
         type: "city-map",
-        visible: (state) => (state.cities || []).length > 0,
+        visible: (state) => getSelectedCityNames(state).length > 0,
       },
       {
         id: "locationNeeds",
@@ -549,6 +541,14 @@ const sections = [
     short: "Budynek",
     title: "Budynek",
     fields: [
+      {
+        id: "initialRenovationProfile",
+        label: "1.6. Jaki stan nieruchomości bierzesz pod uwagę na tym etapie?",
+        description: "To tylko wstępne profilowanie: co wchodzi w grę już na starcie.",
+        type: "matrix",
+        columns: ["preferuję", "dopuszczam", "nie chcę"],
+        rows: ["na gotowo", "lekki remont", "duży remont"],
+      },
       {
         id: "marketType",
         label: "4.1. Który rynek wchodzi w grę?",
@@ -1197,10 +1197,12 @@ function renderStep() {
   currentStep = Math.min(currentStep, Math.max(visibleSections.length - 1, 0));
   const section = visibleSections[currentStep];
   const hideStepLabels = section.id === "section-1";
+  const isPurposeStep = section.id === "section-1";
 
   elements.wizardHeader.classList.toggle("is-hidden", hideStepLabels);
   elements.stepTabs.classList.toggle("is-hidden", hideStepLabels);
   elements.formFooter.classList.remove("is-hidden");
+  elements.propertyForm.classList.toggle("is-purpose-step", isPurposeStep);
   elements.sectionTitle.textContent = section.title;
   elements.stepCounter.textContent = `Etap ${currentStep + 1} / ${visibleSections.length}`;
   elements.prevStep.disabled = currentStep === 0;
@@ -1223,6 +1225,9 @@ function renderStep() {
 function renderField(field) {
   const wrapper = document.createElement("section");
   wrapper.className = "field-card";
+  if (field.id === "purpose") {
+    wrapper.classList.add("field-card--purpose");
+  }
 
   const header = document.createElement("div");
   header.className = "field-header";
@@ -1513,7 +1518,7 @@ function renderLocationSearchField(field) {
   input.id = `${field.id}-search`;
   input.autocomplete = "off";
   input.placeholder = locationCatalog.length
-    ? "Np. Katowice, Sopot, Goleniów"
+    ? "Np. Katowice, Sopot albo całe woj. śląskie"
     : "Ładuję listę miejscowości...";
   input.value = locationSearchState[field.id] || "";
   input.disabled = !locationCatalog.length;
@@ -1558,6 +1563,17 @@ function renderLocationSearchField(field) {
     const selectedLabels = new Set(state[field.id] || []);
     const matches = locationCatalog
       .filter((entry) => entry.searchKey.includes(normalizedQuery) && !selectedLabels.has(entry.label))
+      .sort((left, right) => {
+        const leftStarts = left.searchKey.startsWith(normalizedQuery) ? 1 : 0;
+        const rightStarts = right.searchKey.startsWith(normalizedQuery) ? 1 : 0;
+        if (leftStarts !== rightStarts) {
+          return rightStarts - leftStarts;
+        }
+        if (left.type !== right.type) {
+          return left.type === "voivodeship" ? -1 : 1;
+        }
+        return left.label.localeCompare(right.label, "pl");
+      })
       .slice(0, 12);
 
     if (!matches.length) {
@@ -1573,7 +1589,7 @@ function renderLocationSearchField(field) {
       button.type = "button";
       button.className = "location-suggestion";
       button.innerHTML =
-        `<strong>${entry.name}</strong><span>${entry.metaLabel}</span>`;
+        `<strong>${entry.type === "voivodeship" ? entry.label : entry.name}</strong><span>${entry.metaLabel}</span>`;
       button.addEventListener("click", () => {
         addLocation(entry);
       });
@@ -2385,7 +2401,7 @@ function buildLocationCatalog(cityRows, countyRows, voivodeshipRows) {
     );
   });
 
-  return cityRows
+  const cityEntries = cityRows
     .map((city) => {
       const county = countyByCode.get(city.county_code);
       const voivodeship = voivodeshipByCode.get(county?.voivodeship_code);
@@ -2407,6 +2423,7 @@ function buildLocationCatalog(cityRows, countyRows, voivodeshipRows) {
       }
 
       return {
+        type: "city",
         name,
         label,
         countyName,
@@ -2416,6 +2433,18 @@ function buildLocationCatalog(cityRows, countyRows, voivodeshipRows) {
       };
     })
     .sort((left, right) => left.label.localeCompare(right.label, "pl"));
+
+  const voivodeshipEntries = voivodeshipRows.map((voivodeship) => ({
+    type: "voivodeship",
+    name: voivodeship.name,
+    label: `woj. ${voivodeship.name}`,
+    countyName: "",
+    voivodeshipName: voivodeship.name,
+    metaLabel: "całe województwo",
+    searchKey: normalizeSearchText(`${voivodeship.name} wojewodztwo cale`),
+  }));
+
+  return [...voivodeshipEntries, ...cityEntries];
 }
 
 function ensureLocationCatalog() {
@@ -2457,7 +2486,9 @@ function getLocationEntryByLabel(label) {
 
 function getSelectedCityNames(currentState = state) {
   return (currentState.cities || [])
-    .map((selectedLabel) => getLocationEntryByLabel(selectedLabel)?.name || selectedLabel)
+    .map((selectedLabel) => getLocationEntryByLabel(selectedLabel))
+    .filter((entry) => entry && entry.type === "city")
+    .map((entry) => entry.name)
     .filter(Boolean);
 }
 
