@@ -435,6 +435,70 @@ body {
   font-size: var(--type-answer);
 }
 
+.location-search-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.location-search-input-group input {
+  max-width: 100%;
+}
+
+.location-selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.location-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: var(--type-body);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+.location-chip-remove {
+  color: var(--muted);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
+}
+
+.location-search-suggestions {
+  display: grid;
+  gap: 8px;
+}
+
+.location-suggestion {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.location-suggestion strong {
+  font-size: var(--type-answer);
+  line-height: 1.3;
+  font-weight: var(--weight-semibold);
+}
+
+.location-suggestion span {
+  color: var(--muted);
+  font-size: var(--type-meta);
+}
+
 .step-tab,
 .primary-button,
 .secondary-button,

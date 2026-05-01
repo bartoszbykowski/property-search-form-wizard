@@ -1,7 +1,17 @@
 const STORAGE_KEY = "property-search-form-state-v1";
 const KATOWICE_DISTRICTS_GEOJSON_URL =
   "https://services1.arcgis.com/BNOHq9FCYUCPx1D8/ArcGIS/rest/services/dzielnice_Katowic/FeatureServer/0/query?where=1%3D1&outFields=NAZWA&f=geojson";
+const POLISH_CITIES_DATA_URL =
+  "https://unpkg.com/polish-cities@2025.1.2/data/city.json";
+const POLISH_COUNTIES_DATA_URL =
+  "https://unpkg.com/polish-cities@2025.1.2/data/county.json";
+const POLISH_VOIVODESHIPS_DATA_URL =
+  "https://unpkg.com/polish-cities@2025.1.2/data/voivodeship.json";
 let katowiceDistrictsGeoJsonPromise;
+let locationCatalog = [];
+let locationCatalogByLabel = new Map();
+let locationCatalogPromise;
+const locationSearchState = {};
 
 const countyCitiesByVoivodeship = {
   "dolnośląskie": [
@@ -554,35 +564,30 @@ const sections = [
     title: "Lokalizacja",
     fields: [
       {
-        id: "voivodeship",
-        label: "3.1. W jakim województwie chcesz szukać?",
-        type: "search-single",
-        options: Object.keys(countyCitiesByVoivodeship),
-      },
-      {
         id: "cities",
-        label: "3.2. Jakie miasta bierzesz pod uwagę?",
-        type: "search-multi",
-        visible: (state) => Boolean(state.voivodeship),
+        label: "3.1. Jakie miasta lub miejscowości bierzesz pod uwagę?",
+        description:
+          "Zacznij wpisywać nazwę lokalizacji. Możesz dodać kilka miast lub miejscowości, tak jak w wyszukiwarce ofert.",
+        type: "location-search",
       },
       {
         id: "districts",
-        label: "3.3. Czy interesują Cię konkretne dzielnice lub obszary?",
+        label: "3.2. Czy interesują Cię konkretne dzielnice lub obszary?",
         description:
           "Jeśli wybierzesz Katowice, możesz też zaznaczać dzielnice bezpośrednio na mapie.",
         type: "multi-dynamic",
         visible: (state) =>
-          getDistrictOptions(state).length > 0 && !((state.cities || []).includes("Katowice")),
+          getDistrictOptions(state).length > 0 && !hasSelectedCityName(state, "Katowice"),
       },
       {
         id: "cityMap",
-        label: "3.4. Podgląd wybranego miasta",
+        label: "3.3. Podgląd wybranego miasta",
         type: "city-map",
         visible: (state) => (state.cities || []).length > 0,
       },
       {
         id: "locationNeeds",
-        label: "3.5. Co jest dla Ciebie ważne w lokalizacji?",
+        label: "3.4. Co jest dla Ciebie ważne w lokalizacji?",
         type: "matrix",
         columns: ["konieczne", "ważne", "bez znaczenia"],
         rows: [
@@ -1098,6 +1103,11 @@ const elements = {
 };
 
 renderTabs();
+ensureLocationCatalog().then(() => {
+  if (hasStarted) {
+    renderStep();
+  }
+});
 renderStep();
 
 elements.startForm.addEventListener("click", () => {
@@ -1240,6 +1250,9 @@ function renderField(field) {
       break;
     case "city-map":
       control = renderCityMapField();
+      break;
+    case "location-search":
+      control = renderLocationSearchField(field);
       break;
     case "search-single":
       control = renderSearchSingleField(field);
@@ -1484,10 +1497,166 @@ function renderSearchMultiField(field) {
   return container;
 }
 
+function renderLocationSearchField(field) {
+  const container = document.createElement("div");
+  container.className = "location-search-field";
+
+  const group = document.createElement("div");
+  group.className = "input-group location-search-input-group";
+
+  const label = document.createElement("label");
+  label.htmlFor = `${field.id}-search`;
+  label.textContent = "Wyszukaj miasto lub miejscowość";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = `${field.id}-search`;
+  input.autocomplete = "off";
+  input.placeholder = locationCatalog.length
+    ? "Np. Katowice, Sopot, Goleniów"
+    : "Ładuję listę miejscowości...";
+  input.value = locationSearchState[field.id] || "";
+  input.disabled = !locationCatalog.length;
+
+  const suggestions = document.createElement("div");
+  suggestions.className = "location-search-suggestions";
+
+  const selectedWrap = document.createElement("div");
+  selectedWrap.className = "location-selected-list";
+
+  const addLocation = (entry) => {
+    const next = new Set(state[field.id] || []);
+    next.add(entry.label);
+    state[field.id] = Array.from(next).sort((left, right) => left.localeCompare(right, "pl"));
+    locationSearchState[field.id] = "";
+    normalizeState();
+    persistState();
+    renderStep();
+  };
+
+  const renderSuggestions = () => {
+    const query = (locationSearchState[field.id] || "").trim();
+    suggestions.innerHTML = "";
+
+    if (!locationCatalog.length) {
+      const loading = document.createElement("div");
+      loading.className = "chip-note";
+      loading.textContent = "Ładuję listę miejscowości...";
+      suggestions.appendChild(loading);
+      return;
+    }
+
+    if (query.length < 2) {
+      const hint = document.createElement("div");
+      hint.className = "chip-note";
+      hint.textContent = "Wpisz co najmniej 2 znaki, żeby zobaczyć podpowiedzi.";
+      suggestions.appendChild(hint);
+      return;
+    }
+
+    const normalizedQuery = normalizeSearchText(query);
+    const selectedLabels = new Set(state[field.id] || []);
+    const matches = locationCatalog
+      .filter((entry) => entry.searchKey.includes(normalizedQuery) && !selectedLabels.has(entry.label))
+      .slice(0, 12);
+
+    if (!matches.length) {
+      const empty = document.createElement("div");
+      empty.className = "chip-note";
+      empty.textContent = "Nie znaleźliśmy pasującej miejscowości.";
+      suggestions.appendChild(empty);
+      return;
+    }
+
+    matches.forEach((entry) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "location-suggestion";
+      button.innerHTML =
+        `<strong>${entry.name}</strong><span>${entry.metaLabel}</span>`;
+      button.addEventListener("click", () => {
+        addLocation(entry);
+      });
+      suggestions.appendChild(button);
+    });
+  };
+
+  input.addEventListener("input", () => {
+    locationSearchState[field.id] = input.value;
+    renderSuggestions();
+  });
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+    event.preventDefault();
+    const query = normalizeSearchText(locationSearchState[field.id] || "");
+    if (!query) {
+      return;
+    }
+    const selectedLabels = new Set(state[field.id] || []);
+    const match = locationCatalog.find((entry) =>
+      entry.searchKey.includes(query) && !selectedLabels.has(entry.label)
+    );
+    if (match) {
+      addLocation(match);
+    }
+  });
+
+  group.append(label, input);
+  container.append(group);
+
+  const selectedLabels = state[field.id] || [];
+  if (!selectedLabels.length) {
+    const empty = document.createElement("div");
+    empty.className = "chip-note";
+    empty.textContent = "Nie dodano jeszcze żadnej lokalizacji.";
+    selectedWrap.appendChild(empty);
+  } else {
+    selectedLabels.forEach((selectedLabel) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "location-chip";
+      chip.textContent = selectedLabel;
+
+      const remove = document.createElement("span");
+      remove.className = "location-chip-remove";
+      remove.textContent = "usuń";
+      chip.appendChild(remove);
+
+      chip.addEventListener("click", () => {
+        state[field.id] = (state[field.id] || []).filter((value) => value !== selectedLabel);
+        normalizeState();
+        persistState();
+        renderStep();
+      });
+
+      selectedWrap.appendChild(chip);
+    });
+  }
+
+  container.append(selectedWrap, suggestions);
+
+  if (!locationCatalog.length) {
+    ensureLocationCatalog().then(() => {
+      if (document.body.contains(container)) {
+        renderStep();
+      }
+    });
+  } else {
+    renderSuggestions();
+  }
+
+  return container;
+}
+
 function renderCityMapField() {
   const container = document.createElement("div");
-  const cities = state.cities || [];
-  const city = cities[0];
+  const cityLabels = state.cities || [];
+  const cityNames = getSelectedCityNames(state);
+  const city = cityNames[0];
+  const cityLabel = cityLabels[0] || city;
 
   if (!city) {
     const info = document.createElement("span");
@@ -1499,9 +1668,9 @@ function renderCityMapField() {
 
   const note = document.createElement("p");
   note.className = "field-description";
-  note.textContent = cities.length > 1
-    ? `Pokazuję mapę dla pierwszego wybranego miasta: ${city}.`
-    : `Mapa dla miasta: ${city}.`;
+  note.textContent = cityLabels.length > 1
+    ? `Pokazuję mapę dla pierwszej wybranej lokalizacji: ${cityLabel}.`
+    : `Mapa dla lokalizacji: ${cityLabel}.`;
 
   if (city === "Katowice") {
     const mapContainer = document.createElement("div");
@@ -1539,7 +1708,7 @@ function renderCityMapField() {
 
 function hydrateCityMap() {
   const mapContainer = document.querySelector("#city-map-canvas");
-  const city = (state.cities || [])[0];
+  const city = getSelectedCityNames(state)[0];
 
   if (!mapContainer || city !== "Katowice" || !window.L) {
     return;
@@ -2181,13 +2350,124 @@ function showRenovationBudget(currentState) {
   return includesPurchaseMode(currentState);
 }
 
-function getDistrictOptions(currentState = state) {
-  const selectedCities = currentState.cities || [];
-  return [...new Set(selectedCities.flatMap((city) => cityDistricts[city] || []))];
+function normalizeSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ł/g, "l")
+    .replace(/[^a-z0-9ąćęłńóśźż]+/gi, " ")
+    .trim();
 }
 
-function getCountyCityOptions() {
-  return state.voivodeship ? countyCitiesByVoivodeship[state.voivodeship] || [] : [];
+function buildLocationCatalog(cityRows, countyRows, voivodeshipRows) {
+  const countyByCode = new Map(
+    countyRows.map((county) => [county.code, county]),
+  );
+  const voivodeshipByCode = new Map(
+    voivodeshipRows.map((voivodeship) => [voivodeship.code, voivodeship]),
+  );
+
+  const nameCounts = new Map();
+  const nameVoivodeshipCounts = new Map();
+
+  cityRows.forEach((city) => {
+    const county = countyByCode.get(city.county_code);
+    const voivodeship = voivodeshipByCode.get(county?.voivodeship_code);
+    const cityName = city.name;
+    const voivodeshipName = voivodeship?.name || "";
+    const nameKey = cityName;
+    const nameVoivodeshipKey = `${cityName}|${voivodeshipName}`;
+    nameCounts.set(nameKey, (nameCounts.get(nameKey) || 0) + 1);
+    nameVoivodeshipCounts.set(
+      nameVoivodeshipKey,
+      (nameVoivodeshipCounts.get(nameVoivodeshipKey) || 0) + 1,
+    );
+  });
+
+  return cityRows
+    .map((city) => {
+      const county = countyByCode.get(city.county_code);
+      const voivodeship = voivodeshipByCode.get(county?.voivodeship_code);
+      const name = city.name;
+      const countyName = county?.name || "";
+      const voivodeshipName = voivodeship?.name || "";
+      const voivodeshipMeta = voivodeshipName.toLowerCase();
+      const nameVoivodeshipKey = `${name}|${voivodeshipName}`;
+
+      let label = name;
+      let metaLabel = voivodeshipMeta;
+      if ((nameCounts.get(name) || 0) > 1) {
+        label = `${name}, ${voivodeshipMeta}`;
+        metaLabel = `${voivodeshipMeta}`;
+      }
+      if ((nameVoivodeshipCounts.get(nameVoivodeshipKey) || 0) > 1) {
+        label = `${name}, pow. ${countyName}, ${voivodeshipMeta}`;
+        metaLabel = `pow. ${countyName}, ${voivodeshipMeta}`;
+      }
+
+      return {
+        name,
+        label,
+        countyName,
+        voivodeshipName,
+        metaLabel,
+        searchKey: normalizeSearchText(`${name} ${countyName} ${voivodeshipName}`),
+      };
+    })
+    .sort((left, right) => left.label.localeCompare(right.label, "pl"));
+}
+
+function ensureLocationCatalog() {
+  if (locationCatalog.length) {
+    return Promise.resolve(locationCatalog);
+  }
+  if (!locationCatalogPromise) {
+    locationCatalogPromise = Promise.all([
+      fetch(POLISH_CITIES_DATA_URL).then((response) => response.json()),
+      fetch(POLISH_COUNTIES_DATA_URL).then((response) => response.json()),
+      fetch(POLISH_VOIVODESHIPS_DATA_URL).then((response) => response.json()),
+    ])
+      .then(([cityPayload, countyPayload, voivodeshipPayload]) => {
+        locationCatalog = buildLocationCatalog(
+          cityPayload.city || [],
+          countyPayload.county || [],
+          voivodeshipPayload.voivodeship || [],
+        );
+        locationCatalogByLabel = new Map(
+          locationCatalog.map((entry) => [entry.label, entry]),
+        );
+        normalizeState();
+        persistState();
+        return locationCatalog;
+      })
+      .catch((error) => {
+        console.error(error);
+        locationCatalog = [];
+        locationCatalogByLabel = new Map();
+        return [];
+      });
+  }
+  return locationCatalogPromise;
+}
+
+function getLocationEntryByLabel(label) {
+  return locationCatalogByLabel.get(label) || null;
+}
+
+function getSelectedCityNames(currentState = state) {
+  return (currentState.cities || [])
+    .map((selectedLabel) => getLocationEntryByLabel(selectedLabel)?.name || selectedLabel)
+    .filter(Boolean);
+}
+
+function hasSelectedCityName(currentState, cityName) {
+  return getSelectedCityNames(currentState).includes(cityName);
+}
+
+function getDistrictOptions(currentState = state) {
+  const selectedCities = getSelectedCityNames(currentState);
+  return [...new Set(selectedCities.flatMap((city) => cityDistricts[city] || []))];
 }
 
 function normalizeState() {
@@ -2195,16 +2475,18 @@ function normalizeState() {
   delete state.noWorks;
   delete state.bathroomFeatures;
   delete state.bathroomPreference;
+  delete state.voivodeship;
 
-  if (!state.voivodeship || !countyCitiesByVoivodeship[state.voivodeship]) {
-    delete state.voivodeship;
-    delete state.cities;
-    delete state.districts;
-  }
-
-  const availableCities = new Set(getCountyCityOptions());
-  if (Array.isArray(state.cities)) {
-    state.cities = state.cities.filter((city) => availableCities.has(city));
+  if (Array.isArray(state.cities) && locationCatalogByLabel.size) {
+    state.cities = state.cities
+      .map((selectedLabel) => {
+        if (locationCatalogByLabel.has(selectedLabel)) {
+          return selectedLabel;
+        }
+        const fallbackEntry = locationCatalog.find((entry) => entry.name === selectedLabel);
+        return fallbackEntry?.label || null;
+      })
+      .filter(Boolean);
   }
 
   if (!isVisible({ visible: (s) => s.purpose === "dla siebie / rodziny" })) {
