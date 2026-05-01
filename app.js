@@ -807,33 +807,26 @@ const sections = [
     title: "Cechy dodatkowe",
     fields: [
       {
-        id: "balcony",
-        label: "9.1. Balkon",
-        type: "single",
-        options: ["konieczne", "preferuję", "bez znaczenia"],
-        visible: (state) => hasApartmentSelected(state),
-      },
-      {
         id: "terrace",
-        label: "9.2. Taras",
+        label: "9.1. Taras",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "garden",
-        label: "9.3. Ogródek / dostęp do ogródka",
+        label: "9.2. Ogródek / dostęp do ogródka",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "parking",
-        label: "9.4. Miejsce postojowe / garaż",
+        label: "9.3. Miejsce postojowe / garaż",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "parkingType",
-        label: "9.5. Jaki typ miejsca postojowego bierzesz pod uwagę?",
+        label: "9.4. Jaki typ miejsca postojowego bierzesz pod uwagę?",
         type: "multi",
         options: ["miejsce naziemne", "hala garażowa", "garaż indywidualny", "dowolne"],
         visible: (state) => state.parking && state.parking !== "bez znaczenia",
@@ -846,8 +839,15 @@ const sections = [
     title: "Stan, styl i zakres prac",
     fields: [
       {
+        id: "balcony",
+        label: "10.1. Balkon",
+        type: "single",
+        options: ["konieczne", "preferuję", "bez znaczenia"],
+        visible: (state) => hasApartmentSelected(state),
+      },
+      {
         id: "maxWorks",
-        label: "10.1. Jaki największy zakres prac po zakupie bierzesz pod uwagę?",
+        label: "10.2. Jaki największy zakres prac po zakupie bierzesz pod uwagę?",
         description:
           "Wybierasz maksymalny poziom prac. Wszystko powyżej tego progu powinno być odrzucane przez system.",
         type: "progressive",
@@ -862,7 +862,7 @@ const sections = [
       },
       {
         id: "elementsTolerance",
-        label: "10.2. Jaki stan tych elementów akceptujesz?",
+        label: "10.3. Jaki stan tych elementów akceptujesz?",
         type: "matrix",
         columns: [
           "musi być gotowe / nie chcę ruszać",
@@ -884,7 +884,7 @@ const sections = [
       },
       {
         id: "styleImportance",
-        label: "10.3. Jak ważny jest dla Ciebie styl wykończenia?",
+        label: "10.4. Jak ważny jest dla Ciebie styl wykończenia?",
         type: "single",
         options: [
           "bardzo ważny, szukam konkretnego stylu",
@@ -896,7 +896,7 @@ const sections = [
       },
       {
         id: "acceptedStyles",
-        label: "10.4. Jakie style wchodzą w grę?",
+        label: "10.5. Jakie style wchodzą w grę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -913,7 +913,7 @@ const sections = [
       },
       {
         id: "styleElements",
-        label: "10.5. W których elementach styl ma dla Ciebie największe znaczenie?",
+        label: "10.6. W których elementach styl ma dla Ciebie największe znaczenie?",
         type: "matrix",
         columns: ["bardzo ważny", "ważny", "bez znaczenia"],
         rows: [
@@ -930,7 +930,7 @@ const sections = [
       },
       {
         id: "finishQualityMatrix",
-        label: "10.6. Jakie wykończenie akceptujesz?",
+        label: "10.7. Jakie wykończenie akceptujesz?",
         type: "single",
         options: [
           "nowe, nawet jeśli standard jest podstawowy",
@@ -942,7 +942,7 @@ const sections = [
       },
       {
         id: "furnished",
-        label: "10.7. Czy lokal ma być umeblowany?",
+        label: "10.8. Czy lokal ma być umeblowany?",
         type: "single",
         options: [
           "tak, chcę lokal gotowy do zamieszkania z meblami",
@@ -953,7 +953,7 @@ const sections = [
       },
       {
         id: "primaryCondition",
-        label: "10.8. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
+        label: "10.9. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
         type: "multi",
         options: [
           "stan deweloperski",
@@ -966,7 +966,7 @@ const sections = [
       },
       {
         id: "primaryWait",
-        label: "10.9. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
+        label: "10.10. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
         type: "single",
         options: [
           "tylko gotowe / oddane",
