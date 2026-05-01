@@ -21,6 +21,16 @@ html {
   --space-4: 24px;
   --space-5: 32px;
   --radius: 12px;
+  --type-hero: 32px;
+  --type-section: 26px;
+  --type-question: 20px;
+  --type-answer: 16px;
+  --type-body: 15px;
+  --type-meta: 13px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
 }
 
 html,
@@ -132,8 +142,9 @@ body {
 }
 
 .count-slider-value strong {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1.1;
+  font-weight: var(--weight-bold);
 }
 
 .count-slider-wrap {
@@ -154,7 +165,7 @@ body {
   grid-template-columns: repeat(11, minmax(0, 1fr));
   gap: 0;
   margin-top: 14px;
-  font-size: 12px;
+  font-size: var(--type-meta);
   color: var(--muted);
 }
 
@@ -188,9 +199,9 @@ body {
 }
 
 .budget-value-box span {
-  font-size: 12px;
+  font-size: var(--type-meta);
   color: var(--muted);
-  letter-spacing: 0.01em;
+  font-weight: var(--weight-medium);
 }
 
 .budget-value-input {
@@ -198,8 +209,8 @@ body {
   width: 100%;
   max-width: none !important;
   margin-top: 6px;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: var(--weight-semibold);
+  font-size: var(--type-answer);
 }
 
 .budget-slider-group {
@@ -217,7 +228,7 @@ body {
   gap: 0;
   max-width: 640px;
   margin-top: 10px;
-  font-size: 12px;
+  font-size: var(--type-meta);
   color: var(--muted);
 }
 
@@ -367,17 +378,15 @@ body {
     linear-gradient(135deg, rgba(11, 87, 208, 0.08), rgba(11, 87, 208, 0.18)),
     var(--panel-alt);
   color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
 }
 
 .purpose-card-title {
   display: block;
-  font-size: 16px;
+  font-size: var(--type-answer);
   line-height: 1.35;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .choice-input--hidden:checked + .purpose-card-label {
@@ -390,10 +399,10 @@ body {
 }
 
 .matrix-row-title {
-  font-weight: 700;
+  font-weight: var(--weight-semibold);
   margin: var(--space-2) 0 6px;
   color: var(--text);
-  font-size: 15px;
+  font-size: var(--type-body);
 }
 
 .matrix-cell {
@@ -410,8 +419,8 @@ body {
   display: block;
   margin-bottom: 6px;
   color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
 }
 
 .input-group input,
@@ -423,7 +432,7 @@ body {
   border: 1px solid var(--border);
   padding: 10px 12px;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: var(--type-answer);
 }
 
 .step-tab,
@@ -438,8 +447,8 @@ body {
   padding: 10px 14px;
   cursor: pointer;
   border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
 }
 
 .step-tab {
@@ -460,11 +469,14 @@ body {
 }
 
 .step-tab strong {
-  font-size: 12px;
+  font-size: var(--type-meta);
   color: var(--muted);
+  font-weight: var(--weight-semibold);
 }
 
 .step-tab span {
+  font-size: var(--type-answer);
+  font-weight: var(--weight-bold);
   line-height: 1.35;
 }
 
@@ -528,35 +540,37 @@ p {
 
 h1 {
   margin-bottom: var(--space-3);
-  font-size: 34px;
+  font-size: var(--type-hero);
   line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-weight: var(--weight-bold);
 }
 
 h2 {
   margin-bottom: 0;
-  font-size: 28px;
+  font-size: var(--type-section);
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  font-weight: var(--weight-bold);
 }
 
 .field-title {
   margin-bottom: 6px;
-  font-size: 20px;
+  font-size: var(--type-question);
   line-height: 1.3;
+  font-weight: var(--weight-bold);
 }
 
 .field-description {
   margin-bottom: var(--space-3);
   max-width: 70ch;
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--type-body);
+  font-weight: var(--weight-regular);
 }
 
 #step-counter {
-  font-size: 14px;
+  font-size: var(--type-meta);
   color: var(--muted);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .form-fields {
