@@ -1644,7 +1644,7 @@ function renderCountSliderField(field) {
 
   const bubble = document.createElement("div");
   bubble.className = "count-slider-value";
-  bubble.innerHTML = `<span>Wybrana liczba</span><strong>${currentValue}</strong>`;
+  bubble.innerHTML = `<strong>${currentValue}</strong>`;
 
   const slider = document.createElement("input");
   slider.type = "range";
