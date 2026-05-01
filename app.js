@@ -615,7 +615,7 @@ const sections = [
         columns: [
           "wysoka jakość",
           "bez znaczenia",
-          "może być słabe, jeśli cena to rekompensuje",
+          "może być słabe",
         ],
         rows: [
           "klatka schodowa",
@@ -1542,10 +1542,6 @@ function renderLocationSearchField(field) {
     }
 
     if (query.length < 2) {
-      const hint = document.createElement("div");
-      hint.className = "chip-note";
-      hint.textContent = "Wpisz co najmniej 2 znaki, żeby zobaczyć podpowiedzi.";
-      suggestions.appendChild(hint);
       return;
     }
 
@@ -1614,12 +1610,7 @@ function renderLocationSearchField(field) {
   container.append(group);
 
   const selectedLabels = state[field.id] || [];
-  if (!selectedLabels.length) {
-    const empty = document.createElement("div");
-    empty.className = "chip-note";
-    empty.textContent = "Nie dodano jeszcze żadnej lokalizacji.";
-    selectedWrap.appendChild(empty);
-  } else {
+  if (selectedLabels.length) {
     selectedLabels.forEach((selectedLabel) => {
       const chip = document.createElement("button");
       chip.type = "button";
