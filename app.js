@@ -2205,6 +2205,9 @@ function renderMatrixField(field) {
     title.textContent = rowLabel;
     row.appendChild(title);
 
+    const options = document.createElement("div");
+    options.className = "matrix-options";
+
     field.columns.forEach((column, colIndex) => {
       const cell = document.createElement("div");
       cell.className = "matrix-cell";
@@ -2227,8 +2230,10 @@ function renderMatrixField(field) {
       label.textContent = column;
 
       cell.append(input, label);
-      row.appendChild(cell);
+      options.appendChild(cell);
     });
+
+    row.appendChild(options);
 
     container.appendChild(row);
   });
