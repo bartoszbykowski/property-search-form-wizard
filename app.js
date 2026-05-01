@@ -652,24 +652,6 @@ const sections = [
     ],
   },
   {
-    id: "section-5",
-    short: "Układ",
-    title: "Układ",
-    fields: [
-      {
-        id: "layoutChanges",
-        label: "6.1. Czy dopuszczasz zmiany w układzie?",
-        type: "single",
-        options: [
-          "nie, układ musi być dobry od razu",
-          "tak, dopuszczam drobne zmiany",
-          "tak, dopuszczam większą przebudowę",
-          "bez znaczenia, jeśli cena to rekompensuje",
-        ],
-      },
-    ],
-  },
-  {
     id: "section-6",
     short: "Kuchnia",
     title: "Kuchnia i jadalnia",
@@ -797,6 +779,13 @@ const sections = [
     title: "Cechy dodatkowe",
     fields: [
       {
+        id: "balcony",
+        label: "10.1. Balkon",
+        type: "single",
+        options: ["konieczne", "preferuję", "bez znaczenia"],
+        visible: (state) => hasApartmentSelected(state),
+      },
+      {
         id: "terrace",
         label: "9.1. Taras",
         type: "single",
@@ -829,13 +818,6 @@ const sections = [
     title: "Stan, styl i zakres prac",
     fields: [
       {
-        id: "balcony",
-        label: "10.1. Balkon",
-        type: "single",
-        options: ["konieczne", "preferuję", "bez znaczenia"],
-        visible: (state) => hasApartmentSelected(state),
-      },
-      {
         id: "maxWorks",
         label: "10.2. Jaki największy zakres prac po zakupie bierzesz pod uwagę?",
         description:
@@ -848,6 +830,17 @@ const sections = [
           { code: "A3", label: "akceptuję wymianę kuchni" },
           { code: "A4", label: "akceptuję remont łazienki / WC" },
           { code: "A5", label: "akceptuję większy remont / instalacje / zmianę układu" },
+        ],
+      },
+      {
+        id: "layoutChanges",
+        label: "6.1. Czy dopuszczasz zmiany w układzie?",
+        type: "single",
+        options: [
+          "nie, układ musi być dobry od razu",
+          "tak, dopuszczam drobne zmiany",
+          "tak, dopuszczam większą przebudowę",
+          "bez znaczenia, jeśli cena to rekompensuje",
         ],
       },
       {
