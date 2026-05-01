@@ -468,6 +468,14 @@ const sections = [
         type: "multi",
         options: ["kupno", "najem"],
       },
+      {
+        id: "initialRenovationProfile",
+        label: "1.5. Jaki stan nieruchomości bierzesz pod uwagę na tym etapie?",
+        description: "To tylko wstępne profilowanie: co wchodzi w grę już na starcie.",
+        type: "matrix",
+        columns: ["preferuję", "dopuszczam", "nie chcę"],
+        rows: ["na gotowo", "lekki remont", "duży remont"],
+      },
     ],
   },
   {
@@ -732,27 +740,24 @@ const sections = [
       {
         id: "bathroomLayout",
         label: "8.1. Jaki układ łazienki i WC bierzesz pod uwagę?",
-        type: "single",
-        options: [
+        type: "matrix",
+        columns: ["preferuję", "dopuszczam", "nie chcę"],
+        rows: [
           "jedna łazienka z WC",
           "łazienka + osobne WC",
           "dwie łazienki",
           "łazienka + osobne WC z prysznicem",
-          "bez znaczenia",
         ],
       },
       {
-        id: "bathroomPreference",
-        label: "8.2. Co preferujesz w łazience?",
-        type: "single",
-        options: ["prysznic", "wanna", "wanna i prysznic", "bez znaczenia"],
-      },
-      {
         id: "bathroomDetails",
-        label: "8.3. Co jeszcze jest ważne w łazience?",
+        label: "8.2. Co jest dla Ciebie ważne w łazience?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: [
+          "prysznic",
+          "wanna",
+          "wanna i prysznic",
           "jedna umywalka",
           "dwie umywalki",
           "WC w łazience",
@@ -763,18 +768,15 @@ const sections = [
       },
       {
         id: "wcFeatures",
-        label: "8.4. Co jest dla Ciebie ważne w osobnym WC?",
+        label: "8.3. Co jest dla Ciebie ważne w osobnym WC?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: ["WC", "umywalka", "prysznic", "bidet"],
-        visible: (state) =>
-          ["łazienka + osobne WC", "łazienka + osobne WC z prysznicem"].includes(
-            state.bathroomLayout,
-          ),
+        visible: (state) => bathroomAllowsSeparateWc(state),
       },
       {
         id: "washingMachineLocation",
-        label: "8.5. Gdzie może znajdować się pralka?",
+        label: "8.4. Gdzie może znajdować się pralka?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -787,7 +789,7 @@ const sections = [
       },
       {
         id: "dryerSpace",
-        label: "8.6. Czy potrzebujesz miejsca na suszarkę bębnową?",
+        label: "8.5. Czy potrzebujesz miejsca na suszarkę bębnową?",
         type: "single",
         options: [
           "tak, obok pralki",
@@ -2112,6 +2114,12 @@ function styleMatters(currentState) {
   ].includes(currentState.styleImportance);
 }
 
+function bathroomAllowsSeparateWc(currentState) {
+  const layout = currentState.bathroomLayout || {};
+  return ["preferuję", "dopuszczam"].includes(layout["łazienka + osobne WC"]) ||
+    ["preferuję", "dopuszczam"].includes(layout["łazienka + osobne WC z prysznicem"]);
+}
+
 function includesPurchaseMode(currentState) {
   return (currentState.mode || []).includes("kupno");
 }
@@ -2137,6 +2145,7 @@ function normalizeState() {
   delete state.changeBudgetApproach;
   delete state.noWorks;
   delete state.bathroomFeatures;
+  delete state.bathroomPreference;
 
   if (!state.voivodeship || !countyCitiesByVoivodeship[state.voivodeship]) {
     delete state.voivodeship;
@@ -2185,7 +2194,7 @@ function normalizeState() {
     delete state.rentBudget;
   }
 
-  if (!["łazienka + osobne WC", "łazienka + osobne WC z prysznicem"].includes(state.bathroomLayout)) {
+  if (!bathroomAllowsSeparateWc(state)) {
     delete state.wcFeatures;
   }
 
