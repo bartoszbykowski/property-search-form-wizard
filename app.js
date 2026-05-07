@@ -449,7 +449,7 @@ const sections = [
     fields: [
       {
         id: "adults",
-        label: "1.3. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
+        label: "1.2. Ile osób dorosłych będzie mieszkać lub korzystać z tej nieruchomości?",
         type: "count-slider",
         min: 1,
         max: 10,
@@ -458,7 +458,7 @@ const sections = [
       },
       {
         id: "children",
-        label: "1.4. Ile dzieci będzie mieszkać w tej nieruchomości?",
+        label: "1.3. Ile dzieci będzie mieszkać w tej nieruchomości?",
         type: "count-slider",
         min: 0,
         max: 10,
@@ -474,7 +474,7 @@ const sections = [
     fields: [
       {
         id: "mode",
-        label: "1.2. Interesuje Cię zakup, najem czy oba warianty?",
+        label: "1.4. Interesuje Cię zakup, najem czy oba warianty?",
         type: "multi",
         options: ["kupno", "najem"],
       },
@@ -499,14 +499,14 @@ const sections = [
     fields: [
       {
         id: "cities",
-        label: "3.1. Jakie miasta lub miejscowości bierzesz pod uwagę?",
+        label: "2.1. Jakie miasta lub miejscowości bierzesz pod uwagę?",
         description:
           "Zacznij wpisywać nazwę lokalizacji. Możesz dodać kilka miast lub miejscowości, a także wybrać całe województwo.",
         type: "location-search",
       },
       {
         id: "districts",
-        label: "3.2. Czy interesują Cię konkretne dzielnice lub obszary?",
+        label: "2.2. Czy interesują Cię konkretne dzielnice lub obszary?",
         description:
           "Jeśli wybierzesz Katowice, możesz też zaznaczać dzielnice bezpośrednio na mapie.",
         type: "multi-dynamic",
@@ -515,13 +515,13 @@ const sections = [
       },
       {
         id: "cityMap",
-        label: "3.3. Podgląd wybranego miasta",
+        label: "2.3. Podgląd wybranego miasta",
         type: "city-map",
         visible: (state) => getSelectedCityNames(state).length > 0,
       },
       {
         id: "locationNeeds",
-        label: "3.4. Co jest dla Ciebie ważne w lokalizacji?",
+        label: "2.4. Co jest dla Ciebie ważne w lokalizacji?",
         type: "matrix",
         columns: ["konieczne", "ważne", "bez znaczenia"],
         rows: [
@@ -542,23 +542,23 @@ const sections = [
     title: "Budynek",
     fields: [
       {
+        id: "marketType",
+        label: "3.1. Który rynek wchodzi w grę?",
+        type: "matrix",
+        columns: ["preferuję", "dopuszczam", "nie chcę"],
+        rows: ["rynek wtórny", "rynek pierwotny"],
+      },
+      {
         id: "initialRenovationProfile",
-        label: "1.6. Jaki stan nieruchomości bierzesz pod uwagę na tym etapie?",
+        label: "3.2. Jaki stan nieruchomości bierzesz pod uwagę na tym etapie?",
         description: "To tylko wstępne profilowanie: co wchodzi w grę już na starcie.",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: ["na gotowo", "lekki remont", "duży remont"],
       },
       {
-        id: "marketType",
-        label: "4.1. Który rynek wchodzi w grę?",
-        type: "matrix",
-        columns: ["preferuję", "dopuszczam", "nie chcę"],
-        rows: ["rynek wtórny", "rynek pierwotny"],
-      },
-      {
         id: "propertyTypes",
-        label: "4.2. Jakiego typu nieruchomości szukasz?",
+        label: "3.3. Jakiego typu nieruchomości szukasz?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -572,7 +572,7 @@ const sections = [
       },
       {
         id: "apartmentLevels",
-        label: "4.3. Czy mieszkanie może być dwupoziomowe?",
+        label: "3.4. Czy mieszkanie może być dwupoziomowe?",
         type: "single",
         options: [
           "tylko jednopoziomowe",
@@ -584,7 +584,7 @@ const sections = [
       },
       {
         id: "floorAcceptance",
-        label: "4.4. Jakie położenie mieszkania bierzesz pod uwagę?",
+        label: "3.5. Jakie położenie mieszkania bierzesz pod uwagę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -598,7 +598,7 @@ const sections = [
       },
       {
         id: "liftRequired",
-        label: "4.5. Czy winda jest dla Ciebie ważna?",
+        label: "3.6. Czy winda jest dla Ciebie ważna?",
         type: "single",
         options: [
           "tak, zawsze",
@@ -610,7 +610,7 @@ const sections = [
       },
       {
         id: "buildingStandard",
-        label: "4.6. Jak ważny jest dla Ciebie standard budynku i części wspólnych?",
+        label: "3.7. Jak ważny jest dla Ciebie standard budynku i części wspólnych?",
         type: "matrix",
         columns: [
           "wysoka jakość",
@@ -634,12 +634,12 @@ const sections = [
     fields: [
       {
         id: "roomNeeds",
-        label: "5.1. Jakich pomieszczeń potrzebujesz?",
+        label: "4.1. Jakich pomieszczeń potrzebujesz?",
         type: "room-needs",
       },
       {
         id: "area",
-        label: "5.2. Jakiej powierzchni szukasz?",
+        label: "4.2. Jakiej powierzchni szukasz?",
         description: "Wprowadź przedział w m².",
         type: "range",
         minLabel: "Od",
@@ -658,14 +658,14 @@ const sections = [
     fields: [
       {
         id: "kitchenLayout",
-        label: "7.1. Jaki układ kuchni Ci odpowiada?",
+        label: "5.1. Jaki układ kuchni Ci odpowiada?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: ["osobna kuchnia", "aneks kuchenny", "salon z aneksem"],
       },
       {
         id: "diningSpace",
-        label: "7.2. Czy potrzebujesz miejsca do jedzenia?",
+        label: "5.2. Czy potrzebujesz miejsca do jedzenia?",
         type: "single",
         options: [
           "tak, stół dla 2 osób",
@@ -678,7 +678,7 @@ const sections = [
       },
       {
         id: "readyKitchen",
-        label: "7.3. Jeśli kuchnia nie spełnia oczekiwań od razu, co akceptujesz?",
+        label: "5.3. Jeśli kuchnia nie spełnia oczekiwań od razu, co akceptujesz?",
         type: "single",
         options: [
           "musi być gotowa od razu",
@@ -689,7 +689,7 @@ const sections = [
       },
       {
         id: "kitchenEquipment",
-        label: "7.4. Jakie wyposażenie kuchni jest dla Ciebie ważne?",
+        label: "5.4. Jakie wyposażenie kuchni jest dla Ciebie ważne?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: [
@@ -711,7 +711,7 @@ const sections = [
     fields: [
       {
         id: "bathroomLayout",
-        label: "8.1. Jaki układ łazienki i WC bierzesz pod uwagę?",
+        label: "6.1. Jaki układ łazienki i WC bierzesz pod uwagę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -723,7 +723,7 @@ const sections = [
       },
       {
         id: "bathroomDetails",
-        label: "8.2. Co jest dla Ciebie ważne w łazience?",
+        label: "6.2. Co jest dla Ciebie ważne w łazience?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: [
@@ -740,7 +740,7 @@ const sections = [
       },
       {
         id: "wcFeatures",
-        label: "8.3. Co jest dla Ciebie ważne w osobnym WC?",
+        label: "6.3. Co jest dla Ciebie ważne w osobnym WC?",
         type: "matrix",
         columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
         rows: ["WC", "umywalka", "prysznic", "bidet"],
@@ -748,7 +748,7 @@ const sections = [
       },
       {
         id: "washingMachineLocation",
-        label: "8.4. Gdzie może znajdować się pralka?",
+        label: "6.4. Gdzie może znajdować się pralka?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -761,7 +761,7 @@ const sections = [
       },
       {
         id: "dryerSpace",
-        label: "8.5. Czy potrzebujesz miejsca na suszarkę bębnową?",
+        label: "6.5. Czy potrzebujesz miejsca na suszarkę bębnową?",
         type: "single",
         options: [
           "tak, obok pralki",
@@ -780,32 +780,32 @@ const sections = [
     fields: [
       {
         id: "balcony",
-        label: "10.1. Balkon",
+        label: "7.1. Balkon",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
         visible: (state) => hasApartmentSelected(state),
       },
       {
         id: "terrace",
-        label: "9.1. Taras",
+        label: "7.2. Taras",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "garden",
-        label: "9.2. Ogródek / dostęp do ogródka",
+        label: "7.3. Ogródek / dostęp do ogródka",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "parking",
-        label: "9.3. Miejsce postojowe / garaż",
+        label: "7.4. Miejsce postojowe / garaż",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "parkingType",
-        label: "9.4. Jaki typ miejsca postojowego bierzesz pod uwagę?",
+        label: "7.5. Jaki typ miejsca postojowego bierzesz pod uwagę?",
         type: "multi",
         options: ["miejsce naziemne", "hala garażowa", "garaż indywidualny", "dowolne"],
         visible: (state) => state.parking && state.parking !== "bez znaczenia",
@@ -819,7 +819,7 @@ const sections = [
     fields: [
       {
         id: "maxWorks",
-        label: "10.2. Jaki największy zakres prac po zakupie bierzesz pod uwagę?",
+        label: "8.1. Jaki największy zakres prac po zakupie bierzesz pod uwagę?",
         description:
           "Wybierasz maksymalny poziom prac. Wszystko powyżej tego progu powinno być odrzucane przez system.",
         type: "progressive",
@@ -834,7 +834,7 @@ const sections = [
       },
       {
         id: "layoutChanges",
-        label: "6.1. Czy dopuszczasz zmiany w układzie?",
+        label: "8.2. Czy dopuszczasz zmiany w układzie?",
         type: "single",
         options: [
           "nie, układ musi być dobry od razu",
@@ -845,7 +845,7 @@ const sections = [
       },
       {
         id: "elementsTolerance",
-        label: "10.3. Jaki stan tych elementów akceptujesz?",
+        label: "8.3. Jaki stan tych elementów akceptujesz?",
         type: "matrix",
         columns: [
           "musi być gotowe / nie chcę ruszać",
@@ -867,7 +867,7 @@ const sections = [
       },
       {
         id: "styleImportance",
-        label: "10.4. Jak ważny jest dla Ciebie styl wykończenia?",
+        label: "8.4. Jak ważny jest dla Ciebie styl wykończenia?",
         type: "single",
         options: [
           "bardzo ważny, szukam konkretnego stylu",
@@ -879,7 +879,7 @@ const sections = [
       },
       {
         id: "acceptedStyles",
-        label: "10.5. Jakie style wchodzą w grę?",
+        label: "8.5. Jakie style wchodzą w grę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -896,7 +896,7 @@ const sections = [
       },
       {
         id: "styleElements",
-        label: "10.6. W których elementach styl ma dla Ciebie największe znaczenie?",
+        label: "8.6. W których elementach styl ma dla Ciebie największe znaczenie?",
         type: "matrix",
         columns: ["bardzo ważny", "ważny", "bez znaczenia"],
         rows: [
@@ -913,7 +913,7 @@ const sections = [
       },
       {
         id: "finishQualityMatrix",
-        label: "10.7. Jakie wykończenie akceptujesz?",
+        label: "8.7. Jakie wykończenie akceptujesz?",
         type: "single",
         options: [
           "nowe, nawet jeśli standard jest podstawowy",
@@ -925,7 +925,7 @@ const sections = [
       },
       {
         id: "furnished",
-        label: "10.8. Czy lokal ma być umeblowany?",
+        label: "8.8. Czy lokal ma być umeblowany?",
         type: "single",
         options: [
           "tak, chcę lokal gotowy do zamieszkania z meblami",
@@ -936,7 +936,7 @@ const sections = [
       },
       {
         id: "primaryCondition",
-        label: "10.9. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
+        label: "8.9. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
         type: "multi",
         options: [
           "stan deweloperski",
@@ -949,7 +949,7 @@ const sections = [
       },
       {
         id: "primaryWait",
-        label: "10.10. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
+        label: "8.10. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
         type: "single",
         options: [
           "tylko gotowe / oddane",
@@ -970,7 +970,7 @@ const sections = [
     fields: [
       {
         id: "renovationBudget",
-        label: "2.3. Ile maksymalnie możesz przeznaczyć na remont lub wykończenie?",
+        label: "9.1. Ile maksymalnie możesz przeznaczyć na remont lub wykończenie?",
         type: "number",
         min: 0,
         step: 10000,
@@ -978,7 +978,7 @@ const sections = [
       },
       {
         id: "renovationFlex",
-        label: "2.4. Czy budżet na remont / wykończenie jest elastyczny?",
+        label: "9.2. Czy budżet na remont / wykończenie jest elastyczny?",
         type: "single",
         options: [
           "nie, to twardy limit",
@@ -998,7 +998,7 @@ const sections = [
     fields: [
       {
         id: "totalBudget",
-        label: "2.1. Jaki budżet łącznie bierzesz pod uwagę?",
+        label: "10.1. Jaki budżet łącznie bierzesz pod uwagę?",
         description:
           "Budżet łączny = zakup nieruchomości + remont / wykończenie.",
         type: "budget-range",
@@ -1011,7 +1011,7 @@ const sections = [
       },
       {
         id: "purchaseBudget",
-        label: "2.2. Ile maksymalnie chcesz przeznaczyć na sam zakup nieruchomości?",
+        label: "10.2. Ile maksymalnie chcesz przeznaczyć na sam zakup nieruchomości?",
         type: "number",
         min: 0,
         step: 10000,
@@ -1019,7 +1019,7 @@ const sections = [
       },
       {
         id: "financing",
-        label: "2.5. Jak planujesz sfinansować zakup?",
+        label: "10.3. Jak planujesz sfinansować zakup?",
         type: "single",
         options: [
           "gotówka",
@@ -1040,7 +1040,7 @@ const sections = [
     fields: [
       {
         id: "rentBudget",
-        label: "2.6. Jaki miesięczny budżet na najem bierzesz pod uwagę?",
+        label: "11.1. Jaki miesięczny budżet na najem bierzesz pod uwagę?",
         type: "number",
         min: 0,
         step: 100,
