@@ -1936,7 +1936,31 @@ function renderRoomNeedsField(field) {
   ];
 
   const roomNeeds = state[field.id] || {};
+  const customRooms = Array.isArray(roomNeeds.customRooms) ? roomNeeds.customRooms : [];
   const childCount = Math.max(1, Number(state.children || 0));
+
+  const renderToggle = (selectedValue, onChange) => {
+    const toggle = document.createElement("div");
+    toggle.className = "room-needs-toggle";
+
+    ["tak", "nie"].forEach((option) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "room-needs-button";
+      button.textContent = option;
+      if (selectedValue === option) {
+        button.classList.add("is-active");
+      }
+
+      button.addEventListener("click", () => {
+        onChange(option);
+      });
+
+      toggle.appendChild(button);
+    });
+
+    return toggle;
+  };
 
   rows
     .filter((row) => !row.visible || row.visible())
@@ -1951,19 +1975,8 @@ function renderRoomNeedsField(field) {
       const controls = document.createElement("div");
       controls.className = "room-needs-controls";
 
-      const toggle = document.createElement("div");
-      toggle.className = "room-needs-toggle";
-
-      ["tak", "nie"].forEach((option) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "room-needs-button";
-        button.textContent = option;
-        if (roomNeeds[row.key] === option) {
-          button.classList.add("is-active");
-        }
-
-        button.addEventListener("click", () => {
+      controls.appendChild(
+        renderToggle(roomNeeds[row.key], (option) => {
           const next = { ...(state[field.id] || {}) };
           next[row.key] = option;
           if (row.hasCount && option === "nie") {
@@ -1973,12 +1986,8 @@ function renderRoomNeedsField(field) {
           normalizeState();
           persistState();
           renderStep();
-        });
-
-        toggle.appendChild(button);
-      });
-
-      controls.appendChild(toggle);
+        }),
+      );
 
       if (row.hasCount && roomNeeds[row.key] === "tak") {
         const countWrap = document.createElement("label");
@@ -2009,6 +2018,84 @@ function renderRoomNeedsField(field) {
       rowElement.append(title, controls);
       container.appendChild(rowElement);
     });
+
+  customRooms.forEach((room, index) => {
+    const rowElement = document.createElement("div");
+    rowElement.className = "room-needs-row room-needs-row--custom";
+
+    const titleWrap = document.createElement("div");
+    titleWrap.className = "room-needs-title room-needs-title--custom";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "room-needs-custom-input";
+    input.placeholder = "Wpisz własne pomieszczenie";
+    input.value = room.label || "";
+    input.addEventListener("input", () => {
+      const next = { ...(state[field.id] || {}) };
+      const nextCustomRooms = Array.isArray(next.customRooms) ? [...next.customRooms] : [];
+      nextCustomRooms[index] = { ...nextCustomRooms[index], label: input.value };
+      next.customRooms = nextCustomRooms;
+      state[field.id] = next;
+      persistState();
+    });
+
+    titleWrap.appendChild(input);
+
+    const controls = document.createElement("div");
+    controls.className = "room-needs-controls";
+    controls.appendChild(
+      renderToggle(room.value, (option) => {
+        const next = { ...(state[field.id] || {}) };
+        const nextCustomRooms = Array.isArray(next.customRooms) ? [...next.customRooms] : [];
+        nextCustomRooms[index] = { ...nextCustomRooms[index], value: option };
+        next.customRooms = nextCustomRooms;
+        state[field.id] = next;
+        persistState();
+        renderStep();
+      }),
+    );
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "room-needs-remove";
+    removeButton.textContent = "Usuń";
+    removeButton.addEventListener("click", () => {
+      const next = { ...(state[field.id] || {}) };
+      next.customRooms = (next.customRooms || []).filter((_, customIndex) => customIndex !== index);
+      state[field.id] = next;
+      persistState();
+      renderStep();
+    });
+    controls.appendChild(removeButton);
+
+    rowElement.append(titleWrap, controls);
+    container.appendChild(rowElement);
+  });
+
+  const addWrap = document.createElement("div");
+  addWrap.className = "room-needs-add";
+
+  const addButton = document.createElement("button");
+  addButton.type = "button";
+  addButton.className = "secondary-button room-needs-add-button";
+  addButton.textContent = "Dodaj";
+  addButton.addEventListener("click", () => {
+    const next = { ...(state[field.id] || {}) };
+    const nextCustomRooms = Array.isArray(next.customRooms) ? [...next.customRooms] : [];
+    nextCustomRooms.push({
+      id: `custom-room-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      label: "",
+      value: "nie",
+    });
+    next.customRooms = nextCustomRooms;
+    state[field.id] = next;
+    persistState();
+    renderStep();
+  });
+
+  addWrap.appendChild(addButton);
+  container.appendChild(addWrap);
 
   return container;
 }

@@ -596,6 +596,35 @@ body {
   font-size: var(--type-answer);
 }
 
+.room-needs-title--custom {
+  flex: 1 1 min(320px, 42%);
+}
+
+.room-needs-custom-input {
+  width: 100%;
+}
+
+.room-needs-remove {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.room-needs-add {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.room-needs-add-button {
+  min-width: 96px;
+}
+
 .location-suggestion {
   display: grid;
   gap: 4px;
