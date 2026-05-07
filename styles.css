@@ -327,6 +327,57 @@ body {
   margin-bottom: var(--space-2);
 }
 
+.progressive-scale {
+  display: grid;
+  gap: 0;
+}
+
+.progressive-header {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 120px;
+  align-items: end;
+  gap: var(--space-3);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+
+.progressive-header span {
+  font-size: var(--type-meta);
+  color: var(--muted);
+  font-weight: var(--weight-semibold);
+}
+
+.progressive-header span:last-child {
+  text-align: center;
+}
+
+.progressive-item {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 120px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.progressive-label {
+  display: block !important;
+  padding: 0 !important;
+}
+
+.progressive-label-text {
+  display: block;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.progressive-item input[type="radio"] {
+  justify-self: center;
+}
+
 .choice-card--purpose {
   display: flex;
   flex: 0 0 calc((100% - (2 * var(--space-3))) / 3);
@@ -910,6 +961,15 @@ h2 {
   .matrix-options {
     display: grid;
     grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .progressive-header {
+    display: none;
+  }
+
+  .progressive-item {
+    grid-template-columns: 1fr auto;
     gap: var(--space-2);
   }
 

@@ -2428,6 +2428,18 @@ function renderProgressiveField(field) {
   const container = document.createElement("div");
   container.className = "progressive-scale";
 
+  const header = document.createElement("div");
+  header.className = "progressive-header";
+
+  const empty = document.createElement("span");
+  empty.textContent = "";
+
+  const columnLabel = document.createElement("span");
+  columnLabel.textContent = "wybieram";
+
+  header.append(empty, columnLabel);
+  container.appendChild(header);
+
   field.options.forEach((option, index) => {
     const item = document.createElement("div");
     item.className = "progressive-item";
@@ -2444,9 +2456,15 @@ function renderProgressiveField(field) {
 
     const label = document.createElement("label");
     label.htmlFor = input.id;
-    label.innerHTML = `<strong>${option.code}</strong><span>${option.label}</span>`;
+    label.className = "progressive-label";
 
-    item.append(input, label);
+    const text = document.createElement("span");
+    text.className = "progressive-label-text";
+    text.textContent = option.label;
+
+    label.appendChild(text);
+
+    item.append(label, input);
     container.appendChild(item);
   });
 
