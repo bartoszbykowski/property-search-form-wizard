@@ -224,8 +224,8 @@ body {
 }
 
 .budget-slider-ticks {
-  display: grid;
-  gap: 0;
+  position: relative;
+  height: 24px;
   max-width: 640px;
   margin-top: 10px;
   font-size: var(--type-meta);
@@ -233,15 +233,20 @@ body {
 }
 
 .budget-slider-ticks span {
-  text-align: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  white-space: nowrap;
+  transform: translateX(-50%);
 }
 
 .budget-slider-ticks .budget-tick-start {
-  text-align: left;
+  transform: none;
 }
 
 .budget-slider-ticks .budget-tick-end {
-  text-align: right;
+  transform: translateX(-100%);
 }
 
 .budget-slider-base {

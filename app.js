@@ -2288,10 +2288,12 @@ function renderDualSliderField(field, options = {}) {
     buildValueInput("max", field.maxLabel || "Do"),
   );
 
-  ticks.style.gridTemplateColumns = `repeat(${tickValues.length}, minmax(0, 1fr))`;
   tickValues.forEach((value, index) => {
     const tick = document.createElement("span");
     tick.textContent = formatTick(value);
+    const ratio =
+      tickValues.length === 1 ? 0 : index / (tickValues.length - 1);
+    tick.style.left = `${ratio * 100}%`;
     if (index === 0) {
       tick.classList.add("budget-tick-start");
     }
