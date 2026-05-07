@@ -771,33 +771,21 @@ const sections = [
     title: "Cechy dodatkowe",
     fields: [
       {
-        id: "balcony",
-        label: "8.1. Balkon",
-        type: "binary-toggle",
-        options: ["tak", "nie"],
-        visible: (state) => hasApartmentSelected(state),
-      },
-      {
-        id: "terrace",
-        label: "8.2. Taras",
-        type: "single",
-        options: ["konieczne", "preferuję", "bez znaczenia"],
-      },
-      {
-        id: "garden",
-        label: "8.3. Ogródek / dostęp do ogródka",
-        type: "single",
-        options: ["konieczne", "preferuję", "bez znaczenia"],
+        id: "outdoorFeatures",
+        label: "8.1. Które cechy dodatkowe są dla Ciebie ważne?",
+        type: "matrix",
+        columns: ["konieczne", "preferuję", "bez znaczenia"],
+        rows: ["balkon", "taras", "ogródek / dostęp do ogródka"],
       },
       {
         id: "parking",
-        label: "8.4. Miejsce postojowe / garaż",
+        label: "8.2. Miejsce postojowe / garaż",
         type: "single",
         options: ["konieczne", "preferuję", "bez znaczenia"],
       },
       {
         id: "parkingType",
-        label: "8.5. Jaki typ miejsca postojowego bierzesz pod uwagę?",
+        label: "8.3. Jaki typ miejsca postojowego bierzesz pod uwagę?",
         type: "multi",
         options: ["miejsce naziemne", "hala garażowa", "garaż indywidualny", "dowolne"],
         visible: (state) => state.parking && state.parking !== "bez znaczenia",
@@ -1254,9 +1242,6 @@ function renderField(field) {
       break;
     case "room-needs":
       control = renderRoomNeedsField(field);
-      break;
-    case "binary-toggle":
-      control = renderBinaryToggleField(field);
       break;
     case "budget-range":
       control = renderBudgetRangeField(field);
@@ -2095,37 +2080,6 @@ function renderRoomNeedsField(field) {
   return container;
 }
 
-function renderBinaryToggleField(field) {
-  const container = document.createElement("div");
-  container.className = "binary-toggle-field";
-
-  const toggle = document.createElement("div");
-  toggle.className = "room-needs-toggle";
-
-  const currentValue = state[field.id];
-  (field.options || ["tak", "nie"]).forEach((option) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "room-needs-button";
-    button.textContent = option;
-    if (currentValue === option) {
-      button.classList.add("is-active");
-    }
-
-    button.addEventListener("click", () => {
-      state[field.id] = option;
-      normalizeState();
-      persistState();
-      renderStep();
-    });
-
-    toggle.appendChild(button);
-  });
-
-  container.appendChild(toggle);
-  return container;
-}
-
 function renderDualSliderField(field, options = {}) {
   const container = document.createElement("div");
   container.className = "budget-range-field";
@@ -2768,8 +2722,11 @@ function normalizeState() {
     delete state.apartmentLevels;
     delete state.floorAcceptance;
     delete state.liftRequired;
-    delete state.balcony;
   }
+
+  delete state.balcony;
+  delete state.terrace;
+  delete state.garden;
 
   if (!styleMatters(state)) {
     delete state.acceptedStyles;
