@@ -875,25 +875,8 @@ const sections = [
         visible: (state) => styleMatters(state),
       },
       {
-        id: "styleElements",
-        label: "9.6. W których elementach styl ma dla Ciebie największe znaczenie?",
-        type: "matrix",
-        columns: ["bardzo ważny", "ważny", "bez znaczenia"],
-        rows: [
-          "kuchnia",
-          "łazienka",
-          "WC",
-          "podłogi",
-          "drzwi",
-          "zabudowy stałe",
-          "pokoje / ściany",
-          "oświetlenie",
-        ],
-        visible: (state) => styleMatters(state),
-      },
-      {
         id: "finishQualityMatrix",
-        label: "9.7. Jakie wykończenie akceptujesz?",
+        label: "9.6. Jakie wykończenie akceptujesz?",
         type: "single",
         options: [
           "nowe, nawet jeśli standard jest podstawowy",
@@ -905,7 +888,7 @@ const sections = [
       },
       {
         id: "furnished",
-        label: "9.8. Czy lokal ma być umeblowany?",
+        label: "9.7. Czy lokal ma być umeblowany?",
         type: "single",
         options: [
           "tak, chcę lokal gotowy do zamieszkania z meblami",
@@ -916,7 +899,7 @@ const sections = [
       },
       {
         id: "primaryCondition",
-        label: "9.9. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
+        label: "9.8. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
         type: "multi",
         options: [
           "stan deweloperski",
@@ -929,7 +912,7 @@ const sections = [
       },
       {
         id: "primaryWait",
-        label: "9.10. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
+        label: "9.9. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
         type: "single",
         options: [
           "tylko gotowe / oddane",
@@ -2748,8 +2731,9 @@ function normalizeState() {
 
   if (!styleMatters(state)) {
     delete state.acceptedStyles;
-    delete state.styleElements;
   }
+
+  delete state.styleElements;
 
   if (!primaryMarketAllowed(state)) {
     delete state.primaryCondition;
