@@ -1197,9 +1197,32 @@ function renderField(field) {
 
   const header = document.createElement("div");
   header.className = "field-header";
-  header.innerHTML = `<h3 class="field-title">${field.label}</h3>${
-    field.description ? `<p class="field-description">${field.description}</p>` : ""
-  }`;
+
+  const title = document.createElement("h3");
+  title.className = "field-title";
+  const { indexLabel, textLabel } = splitFieldLabel(field.label);
+
+  if (indexLabel) {
+    const index = document.createElement("span");
+    index.className = "field-title-index";
+    index.textContent = indexLabel;
+    title.appendChild(index);
+  }
+
+  const text = document.createElement("span");
+  text.className = "field-title-text";
+  text.textContent = textLabel;
+  title.appendChild(text);
+
+  header.appendChild(title);
+
+  if (field.description) {
+    const description = document.createElement("p");
+    description.className = "field-description";
+    description.textContent = field.description;
+    header.appendChild(description);
+  }
+
   wrapper.appendChild(header);
 
   let control;
@@ -1262,6 +1285,18 @@ function renderField(field) {
 
   wrapper.appendChild(control);
   return wrapper;
+}
+
+function splitFieldLabel(label) {
+  const match = String(label || "").match(/^(\d+(?:\.\d+)*)\.\s+(.*)$/);
+  if (!match) {
+    return { indexLabel: "", textLabel: label };
+  }
+
+  return {
+    indexLabel: match[1],
+    textLabel: match[2],
+  };
 }
 
 function renderChoiceField(field, multiple) {
