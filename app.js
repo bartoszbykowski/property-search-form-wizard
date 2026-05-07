@@ -793,9 +793,9 @@ const sections = [
     ],
   },
   {
-    id: "section-9",
-    short: "Stan",
-    title: "Stan, styl i zakres prac",
+    id: "section-9-renovation",
+    short: "Remont",
+    title: "Remont, wykończenie i zakres prac",
     fields: [
       {
         id: "maxWorks",
@@ -813,19 +813,8 @@ const sections = [
         ],
       },
       {
-        id: "layoutChanges",
-        label: "9.2. Czy dopuszczasz zmiany w układzie?",
-        type: "single",
-        options: [
-          "nie, układ musi być dobry od razu",
-          "tak, dopuszczam drobne zmiany",
-          "tak, dopuszczam większą przebudowę",
-          "bez znaczenia, jeśli cena to rekompensuje",
-        ],
-      },
-      {
         id: "elementsTolerance",
-        label: "9.3. Jaki stan tych elementów akceptujesz?",
+        label: "9.2. Jaki stan tych elementów akceptujesz?",
         type: "matrix",
         columns: [
           "musi być gotowe / nie chcę ruszać",
@@ -846,8 +835,69 @@ const sections = [
         ],
       },
       {
+        id: "layoutChanges",
+        label: "9.3. Czy dopuszczasz zmiany w układzie?",
+        type: "single",
+        options: [
+          "nie, układ musi być dobry od razu",
+          "tak, dopuszczam drobne zmiany",
+          "tak, dopuszczam większą przebudowę",
+          "bez znaczenia, jeśli cena to rekompensuje",
+        ],
+      },
+      {
+        id: "renovationBudget",
+        label: "9.4. Ile maksymalnie możesz przeznaczyć na remont lub wykończenie?",
+        type: "number",
+        min: 0,
+        step: 10000,
+        visible: (state) => showRenovationBudget(state),
+      },
+      {
+        id: "renovationFlex",
+        label: "9.5. Czy budżet na remont / wykończenie jest elastyczny?",
+        type: "single",
+        options: [
+          "nie, to twardy limit",
+          "tak, jeśli cena zakupu jest niższa",
+          "tak, przy bardzo dobrej okazji",
+          "nie wiem, chcę żeby system to policzył",
+        ],
+        visible: (state) => showRenovationBudget(state),
+      },
+    ],
+  },
+  {
+    id: "section-10-state-style",
+    short: "Stan i styl",
+    title: "Stan i styl",
+    fields: [
+      {
+        id: "finishQualityMatrix",
+        label: "10.1. Jakie wykończenie akceptujesz?",
+        type: "single",
+        options: [
+          "nowe, nawet jeśli standard jest podstawowy",
+          "kilkuletnie, jeśli jest zadbane",
+          "starsze, jeśli jest dobrej jakości",
+          "tylko nowe lub prawie nowe",
+          "wiek i jakość mają mniejsze znaczenie, jeśli cena się spina",
+        ],
+      },
+      {
+        id: "furnished",
+        label: "10.2. Czy lokal ma być umeblowany?",
+        type: "single",
+        options: [
+          "tak, chcę lokal gotowy do zamieszkania z meblami",
+          "nie, wystarczy gotowa kuchnia i łazienka",
+          "nie, wolę umeblować samodzielnie",
+          "bez znaczenia",
+        ],
+      },
+      {
         id: "styleImportance",
-        label: "9.4. Jak ważny jest dla Ciebie styl wykończenia?",
+        label: "10.3. Jak ważny jest dla Ciebie styl wykończenia?",
         type: "single",
         options: [
           "bardzo ważny, szukam konkretnego stylu",
@@ -859,7 +909,7 @@ const sections = [
       },
       {
         id: "acceptedStyles",
-        label: "9.5. Jakie style wchodzą w grę?",
+        label: "10.4. Jakie style wchodzą w grę?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -875,31 +925,8 @@ const sections = [
         visible: (state) => styleMatters(state),
       },
       {
-        id: "finishQualityMatrix",
-        label: "9.6. Jakie wykończenie akceptujesz?",
-        type: "single",
-        options: [
-          "nowe, nawet jeśli standard jest podstawowy",
-          "kilkuletnie, jeśli jest zadbane",
-          "starsze, jeśli jest dobrej jakości",
-          "tylko nowe lub prawie nowe",
-          "wiek i jakość mają mniejsze znaczenie, jeśli cena się spina",
-        ],
-      },
-      {
-        id: "furnished",
-        label: "9.7. Czy lokal ma być umeblowany?",
-        type: "single",
-        options: [
-          "tak, chcę lokal gotowy do zamieszkania z meblami",
-          "nie, wystarczy gotowa kuchnia i łazienka",
-          "nie, wolę umeblować samodzielnie",
-          "bez znaczenia",
-        ],
-      },
-      {
         id: "primaryCondition",
-        label: "9.8. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
+        label: "10.5. Jeśli bierzesz pod uwagę rynek pierwotny, jaki stan lokalu akceptujesz?",
         type: "multi",
         options: [
           "stan deweloperski",
@@ -912,7 +939,7 @@ const sections = [
       },
       {
         id: "primaryWait",
-        label: "9.9. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
+        label: "10.6. Jeśli bierzesz pod uwagę rynek pierwotny, jak długo możesz czekać na odbiór?",
         type: "single",
         options: [
           "tylko gotowe / oddane",
@@ -922,34 +949,6 @@ const sections = [
           "powyżej 12 miesięcy, jeśli oferta jest dobra",
         ],
         visible: (state) => primaryMarketAllowed(state),
-      },
-    ],
-  },
-  {
-    id: "section-5a-renovation",
-    short: "Remont",
-    title: "Remont i wykończenie",
-    visible: (state) => showRenovationBudget(state),
-    fields: [
-      {
-        id: "renovationBudget",
-        label: "2.3. Ile maksymalnie możesz przeznaczyć na remont lub wykończenie?",
-        type: "number",
-        min: 0,
-        step: 10000,
-        visible: (state) => showRenovationBudget(state),
-      },
-      {
-        id: "renovationFlex",
-        label: "2.4. Czy budżet na remont / wykończenie jest elastyczny?",
-        type: "single",
-        options: [
-          "nie, to twardy limit",
-          "tak, jeśli cena zakupu jest niższa",
-          "tak, przy bardzo dobrej okazji",
-          "nie wiem, chcę żeby system to policzył",
-        ],
-        visible: (state) => showRenovationBudget(state),
       },
     ],
   },
