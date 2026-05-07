@@ -773,8 +773,8 @@ const sections = [
       {
         id: "balcony",
         label: "8.1. Balkon",
-        type: "single",
-        options: ["konieczne", "preferuję", "bez znaczenia"],
+        type: "binary-toggle",
+        options: ["tak", "nie"],
         visible: (state) => hasApartmentSelected(state),
       },
       {
@@ -1254,6 +1254,9 @@ function renderField(field) {
       break;
     case "room-needs":
       control = renderRoomNeedsField(field);
+      break;
+    case "binary-toggle":
+      control = renderBinaryToggleField(field);
       break;
     case "budget-range":
       control = renderBudgetRangeField(field);
@@ -2089,6 +2092,37 @@ function renderRoomNeedsField(field) {
   addWrap.appendChild(addButton);
   container.appendChild(addWrap);
 
+  return container;
+}
+
+function renderBinaryToggleField(field) {
+  const container = document.createElement("div");
+  container.className = "binary-toggle-field";
+
+  const toggle = document.createElement("div");
+  toggle.className = "room-needs-toggle";
+
+  const currentValue = state[field.id];
+  (field.options || ["tak", "nie"]).forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "room-needs-button";
+    button.textContent = option;
+    if (currentValue === option) {
+      button.classList.add("is-active");
+    }
+
+    button.addEventListener("click", () => {
+      state[field.id] = option;
+      normalizeState();
+      persistState();
+      renderStep();
+    });
+
+    toggle.appendChild(button);
+  });
+
+  container.appendChild(toggle);
   return container;
 }
 
