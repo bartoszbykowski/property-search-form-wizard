@@ -739,16 +739,8 @@ const sections = [
         ],
       },
       {
-        id: "wcFeatures",
-        label: "7.3. Co jest dla Ciebie ważne w osobnym WC?",
-        type: "matrix",
-        columns: ["konieczne", "preferuję", "bez znaczenia", "nie chcę"],
-        rows: ["WC", "umywalka", "prysznic", "bidet"],
-        visible: (state) => bathroomAllowsSeparateWc(state),
-      },
-      {
         id: "washingMachineLocation",
-        label: "7.4. Gdzie może znajdować się pralka?",
+        label: "7.3. Gdzie może znajdować się pralka?",
         type: "matrix",
         columns: ["preferuję", "dopuszczam", "nie chcę"],
         rows: [
@@ -761,7 +753,7 @@ const sections = [
       },
       {
         id: "dryerSpace",
-        label: "7.5. Czy potrzebujesz miejsca na suszarkę bębnową?",
+        label: "7.4. Czy potrzebujesz miejsca na suszarkę bębnową?",
         type: "single",
         options: [
           "tak, obok pralki",
@@ -2556,12 +2548,6 @@ function styleMatters(currentState) {
   ].includes(currentState.styleImportance);
 }
 
-function bathroomAllowsSeparateWc(currentState) {
-  const layout = currentState.bathroomLayout || {};
-  return ["preferuję", "dopuszczam"].includes(layout["łazienka + osobne WC"]) ||
-    ["preferuję", "dopuszczam"].includes(layout["łazienka + osobne WC z prysznicem"]);
-}
-
 function includesPurchaseMode(currentState) {
   return (currentState.mode || []).includes("kupno");
 }
@@ -2773,10 +2759,6 @@ function normalizeState() {
 
   if (!includesRentMode(state)) {
     delete state.rentBudget;
-  }
-
-  if (!bathroomAllowsSeparateWc(state)) {
-    delete state.wcFeatures;
   }
 
   if (!(state.parking && state.parking !== "bez znaczenia")) {
